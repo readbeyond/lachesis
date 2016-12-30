@@ -6,7 +6,7 @@
 * Date: 2016-12-27
 * Developed by: [Alberto Pettarin](http://www.albertopettarin.it/)
 * License: the GNU Affero General Public License Version 3 (AGPL v3)
-* Contact: [aeneas@readbeyond.it](mailto:aeneas@readbeyond.it)
+* Contact: [info@readbeyond.it](mailto:info@readbeyond.it)
 
 ## Goal
 
