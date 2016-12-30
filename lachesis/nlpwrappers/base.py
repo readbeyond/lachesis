@@ -28,6 +28,7 @@ from __future__ import print_function
 from lachesis.elements import Sentence
 from lachesis.elements import Text
 from lachesis.elements import Token
+from lachesis.language import Language
 from lachesis.upostags import UniversalPOSTags
 import lachesis.globalfunctions as gf
 
@@ -46,9 +47,14 @@ class BaseWrapper(object):
     """ Maps the POS tags returned by this NLP library to Universal POS Tags (v2) """
 
     def __init__(self, language):
-        if language not in self.LANGUAGES:
-            raise ValueError(u"This NLP library does not support the '%s' language" % language)
-        self.language = language
+        lfc = Language.from_code(language)
+        if (lfc is not None) and (lfc in self.LANGUAGES):
+            self.language = lfc
+            return self
+        if language in self.LANGUAGES:
+            self.language = language
+            return self
+        raise ValueError(u"This NLP library does not support the '%s' language" % language)
 
     def analyze(self, text):
         """

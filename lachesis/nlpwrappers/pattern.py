@@ -27,6 +27,7 @@ from __future__ import print_function
 
 from lachesis.elements import Sentence
 from lachesis.elements import Token
+from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
 from lachesis.upostags import UniversalPOSTags
 
@@ -37,12 +38,12 @@ class PatternWrapper(BaseWrapper):
     """
 
     LANGUAGES = [
-        u"deu",
-        u"eng",
-        u"esp",
-        u"fra",
-        u"ita",
-        u"nld"
+        Language.DUTCH,
+        Language.ENGLISH,
+        Language.FRENCH,
+        Language.GERMAN,
+        Language.ITALIAN,
+        Language.SPANISH,
     ]
 
     UPOSTAG_MAP = {
@@ -63,22 +64,22 @@ class PatternWrapper(BaseWrapper):
 
     def __init__(self, language):
         super(PatternWrapper, self).__init__(language)
-        if language == u"eng":
+        if language == Language.ENGLISH:
             from pattern.en import parse as func_parse
             from pattern.en import split as func_split
-        elif language == u"ita":
+        elif language == Language.ITALIAN:
             from pattern.it import parse as func_parse
             from pattern.it import split as func_split
-        elif language == u"esp":
+        elif language == Language.SPANISH:
             from pattern.es import parse as func_parse
             from pattern.es import split as func_split
-        elif language == u"fra":
+        elif language == Language.FRENCH:
             from pattern.fr import parse as func_parse
             from pattern.fr import split as func_split
-        elif language == u"deu":
+        elif language == Language.GERMAN:
             from pattern.de import parse as func_parse
             from pattern.de import split as func_split
-        elif language == u"nld":
+        elif language == Language.DUTCH:
             from pattern.nl import parse as func_parse
             from pattern.nl import split as func_split
         else:

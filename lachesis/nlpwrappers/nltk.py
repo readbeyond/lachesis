@@ -27,6 +27,7 @@ from __future__ import print_function
 
 from lachesis.elements import Sentence
 from lachesis.elements import Token
+from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
 
 
@@ -36,27 +37,23 @@ class NLTKWrapper(BaseWrapper):
     """
 
     LANGUAGE_TO_NLTK_FILE = {
-        u"eng": "english",
-        u"ita": "italian",
-
-        # TODO
-        # czech.pickle
-        # danish.pickle
-        # dutch.pickle
-        # english.pickle
-        # estonian.pickle
-        # finnish.pickle
-        # french.pickle
-        # german.pickle
-        # greek.pickle
-        # italian.pickle
-        # norwegian.pickle
-        # polish.pickle
-        # portuguese.pickle
-        # slovene.pickle
-        # spanish.pickle
-        # swedish.pickle
-        # turkish.pickle
+        Language.CZECH: u"czech",
+        Language.DANISH: u"danish",
+        Language.DUTCH: u"dutch",
+        Language.ENGLISH: u"english",
+        Language.ESTONIAN: u"estonian",
+        Language.FINNISH: u"finnish",
+        Language.FRENCH: u"french",
+        Language.GERMAN: u"german",
+        Language.GREEK: u"greek",
+        Language.ITALIAN: u"italian",
+        Language.NORWEGIAN: u"norwegian",
+        Language.POLISH: u"polish",
+        Language.PORTUGUESE: u"portuguese",
+        Language.SLOVENIAN: u"slovene",
+        Language.SPANISH: u"spanish",
+        Language.SWEDISH: u"swedish",
+        Language.TURKISH: u"turkish",
     }
 
     LANGUAGES = LANGUAGE_TO_NLTK_FILE.keys()
