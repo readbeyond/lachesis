@@ -3,7 +3,7 @@
 **lachesis** automates the segmentation of a transcript into closed captions
 
 * Version: 0.0.1
-* Date: 2016-12-27
+* Date: 2017-01-05
 * Developed by: [Alberto Pettarin](http://www.albertopettarin.it/)
 * License: the GNU Affero General Public License Version 3 (AGPL v3)
 * Contact: [info@readbeyond.it](mailto:info@readbeyond.it)

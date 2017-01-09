@@ -27,6 +27,7 @@ from __future__ import print_function
 import io
 import os
 import sys
+import tempfile
 
 
 # RUNTIME CONSTANTS
@@ -87,3 +88,60 @@ def to_native_string(obj):
     if PY2:
         return obj.encode("utf-8")
     return obj
+
+
+def to_unicode_string(obj):
+    """
+    Convert the given (string) object to the correct "unicode" string type:
+    ``unicode`` on Python 2 and ``str`` on Python 3.
+
+    :param variant obj: the object to convert
+    :rtype: str
+    """
+    if is_unicode(obj):
+        return obj
+    return obj.decode("utf-8")
+
+
+def tmp_file(suffix=u"", root=None):
+    """
+    Return a (handler, path) tuple
+    for a temporary file with given suffix created by ``tempfile``.
+
+    :param string suffix: the suffix (e.g., the extension) of the file
+    :param string root: path to the root temporary directory;
+                        if ``None``, the default temporary directory
+                        will be used instead
+    :rtype: tuple
+    """
+    #if root is None:
+    #    root = custom_tmp_dir()
+    return tempfile.mkstemp(suffix=suffix, dir=root)
+
+
+def close_file_handler(handler):
+    """
+    Safely close the given file handler.
+
+    :param object handler: the file handler (as returned by tempfile)
+    """
+    if handler is not None:
+        try:
+            os.close(handler)
+        except:
+            pass
+
+
+def delete_file(handler, path):
+    """
+    Safely delete file.
+
+    :param object handler: the file handler (as returned by tempfile)
+    :param string path: the file path
+    """
+    close_file_handler(handler)
+    if path is not None:
+        try:
+            os.remove(path)
+        except:
+            pass
