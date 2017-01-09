@@ -65,6 +65,8 @@ class Downloader(object):
         """
         retries = options.get(cls.OPTION_RETRIES, cls.RETRIES)
         downloader = options.get(cls.OPTION_DOWNLOADER)
+        download_function = None
+        parse_function = None
         if YTD.can_download(url, downloader):
             download_function = YTD.get_data
             parse_function = YTD.parse_raw_data
@@ -74,6 +76,8 @@ class Downloader(object):
         # if VD.can_download(url, downloader):
         #     raw_data = VD.get_raw_data(url, language, options)
         #
+        if (download_function is None) or (parse_function is None):
+            raise NotImplementedError(u"No known backend for '%s'" % url)
         raw_data = None
         for i in range(retries):
             try:
@@ -82,7 +86,7 @@ class Downloader(object):
             except:
                 pass
         if raw_data is None:
-            raise NotImplementedError(u"No known backend for '%s'" % url)
+            raise IOError(u"Unable to download CC data, please check your Internet connection.")
         if output_file_path is not None:
             cls.write_file(output_file_path, raw_data)
         if parse:

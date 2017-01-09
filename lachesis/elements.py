@@ -207,9 +207,6 @@ class Token(object):
     lemma = attr.ib(default=None, repr=False)
 
     def __str__(self):
-        """
-        TBW
-        """
         return self.raw_string
 
     @property
@@ -218,3 +215,31 @@ class Token(object):
         TBW
         """
         return u"%s/%s" % (self.raw_string, self.upostag)
+
+
+@attr.s
+class ClosedCaption(object):
+    """
+    A ClosedCaption represents a closed caption,
+    that is, a time interval and a list of lines.
+    """
+
+    REGULAR = 0
+    HEAD = 1
+    TAIL = 2
+    NONSPEECH = 3
+    OTHER = 4
+
+    kind = attr.ib()
+    interval = attr.ib(default=None)
+    lines = attr.ib(default=attr.Factory(list), repr=False)
+
+    @property
+    def has_time(self):
+        """
+        TBW
+        """
+        return self.interval is not None
+
+    def __str__(self):
+        return u" | ".join(self.lines)

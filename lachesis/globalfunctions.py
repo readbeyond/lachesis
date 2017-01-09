@@ -26,11 +26,18 @@ from __future__ import absolute_import
 from __future__ import print_function
 import io
 import os
+import re
 import sys
 import tempfile
 
+from lachesis.exacttiming import TimeValue
+
 
 # RUNTIME CONSTANTS
+
+# timing regex patterns
+HHMMSS_MMM_PATTERN = re.compile(r"([0-9]*):([0-9]*):([0-9]*)\.([0-9]*)")
+HHMMSS_MMM_PATTERN_COMMA = re.compile(r"([0-9]*):([0-9]*):([0-9]*),([0-9]*)")
 
 # True if running from a frozen binary (e.g., compiled with pyinstaller)
 FROZEN = getattr(sys, "frozen", False)
@@ -103,6 +110,32 @@ def to_unicode_string(obj):
     return obj.decode("utf-8")
 
 
+def time_from_hhmmssmmm(string, decimal_separator="."):
+    """
+    Parse the given ``HH:MM:SS.mmm`` string and return a time value.
+
+    :param string string: the string to be parsed
+    :param string decimal_separator: the decimal separator to be used
+    :rtype: :class:`~lachesis.exacttiming.TimeValue`
+    """
+    if decimal_separator == ",":
+        pattern = HHMMSS_MMM_PATTERN_COMMA
+    else:
+        pattern = HHMMSS_MMM_PATTERN
+    v_length = TimeValue("0.000")
+    try:
+        match = pattern.search(string)
+        if match is not None:
+            v_h = int(match.group(1))
+            v_m = int(match.group(2))
+            v_s = int(match.group(3))
+            v_f = TimeValue("0." + match.group(4))
+            v_length = v_h * 3600 + v_m * 60 + v_s + v_f
+    except:
+        pass
+    return v_length
+
+
 def tmp_file(suffix=u"", root=None):
     """
     Return a (handler, path) tuple
@@ -114,8 +147,6 @@ def tmp_file(suffix=u"", root=None):
                         will be used instead
     :rtype: tuple
     """
-    #if root is None:
-    #    root = custom_tmp_dir()
     return tempfile.mkstemp(suffix=suffix, dir=root)
 
 

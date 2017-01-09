@@ -31,6 +31,9 @@ import youtube_dl
 from lxml import etree
 
 from lachesis.downloaders import NotDownloadedError
+from lachesis.elements import ClosedCaption
+from lachesis.exacttiming import TimeInterval
+from lachesis.exacttiming import TimeValue
 import lachesis.globalfunctions as gf
 
 
@@ -141,8 +144,8 @@ class YouTubeDownloader(object):
         frags = []
         root = etree.fromstring(s)
         for elem in root.iter(TTML_P):
-            begin = elem.get(TTML_BEGIN).strip()
-            end = elem.get(TTML_END).strip()
+            begin = gf.time_from_hhmmssmmm(elem.get(TTML_BEGIN).strip())
+            end = gf.time_from_hhmmssmmm(elem.get(TTML_END).strip())
             text = elem.text
             # text missing
             if text is None:
@@ -153,8 +156,12 @@ class YouTubeDownloader(object):
             if text == u"":
                 text = PLACEHOLDER_NO_TEXT
             # split lines if the <br/> is present
-            pieces = [t.strip() for t in text.split(PLACEHOLDER_BR)]
+            lines = [l.strip() for l in text.split(PLACEHOLDER_BR)]
             # make sure we return unicode strings
-            pieces = [gf.to_unicode_string(t) for t in pieces if len(t) > 0]
-            frags.append((begin, end, pieces))
+            lines = [gf.to_unicode_string(l) for l in lines if len(l) > 0]
+            frags.append(ClosedCaption(
+                kind=ClosedCaption.REGULAR,
+                interval=TimeInterval(TimeValue(begin), TimeValue(end)),
+                lines=lines
+            ))
         return frags
