@@ -29,6 +29,7 @@ import lachesis.globalfunctions as gf
 
 # NOTE: consider using langcodes once available as unified PY2+PY2 package
 
+
 class LanguageObject(object):
     """
     TBW

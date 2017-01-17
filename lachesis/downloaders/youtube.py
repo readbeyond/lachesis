@@ -43,15 +43,15 @@ class YDLogger(object):
     TBW
     """
     def debug(self, msg):
-        #print(u"[DEBU] %s" % msg)
+        # print(u"[DEBU] %s" % msg)
         pass
 
     def warning(self, msg):
-        #print(u"[WARN] %s" % msg)
+        # print(u"[WARN] %s" % msg)
         pass
 
     def error(self, msg):
-        #print(u"[ERRO] %s" % msg)
+        # print(u"[ERRO] %s" % msg)
         pass
 
 
@@ -107,7 +107,6 @@ class YouTubeDownloader(object):
         gf.delete_file(handler, tmp)
         gf.delete_file(None, out)
         return data
-
 
     @classmethod
     def parse(cls, raw_data, language=None):

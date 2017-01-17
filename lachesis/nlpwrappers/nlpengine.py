@@ -62,7 +62,7 @@ class NLPEngine(object):
         """
         if (language, wrapper) in self.cache:
             return self.cache[(language, wrapper)]
-        if not wrapper in self.CODE_TO_CLASS:
+        if wrapper not in self.CODE_TO_CLASS:
             raise ValueError(u"Unknown NLP wrapper code '%s'" % wrapper)
         wrapper_instance = self.CODE_TO_CLASS[wrapper](language)
         if cache:
@@ -97,5 +97,5 @@ class NLPEngine(object):
             wrapper_instance = self.load_wrapper(lang, wrapper, cache=cache)
         if wrapper_instance is None:
             raise ValueError(u"Unable to locate a suitable NLP wrapper for language '%s'" % lang)
-        #print(u"Using " + wrapper_instance.CODE)
+        # print(u"Using " + wrapper_instance.CODE)
         wrapper_instance.analyze(text)
