@@ -34,63 +34,88 @@ import lachesis.globalfunctions as gf
 class Downloader(object):
 
     OPTION_DOWNLOADER = u"downloader"
+    OPTION_OUTPUT_FILE_PATH = u"output_file_path"
     OPTION_RETRIES = u"retries"
 
+    OUTPUT_FILE_PATH = None
     RETRIES = 5
 
-    YOUTUBE = YTD.CODE
+    # TODO add other downloaders here
+    DOWNLOADERS = {
+        YTD.CODE: YTD,
+        #VD.CODE: VD,
+    }
 
     @classmethod
-    def write_file(cls, path, data):
+    def select_downloader(cls, url, options):
         """
-        Write the given data to file
+        Return a known class that can download
+        and parse the given ``url`` or ``None`` if not possible.
         """
-        with io.open(path, "w", encoding="utf-8") as output_file:
-            output_file.write(data)
-
-    @classmethod
-    def get_data(cls, url, language, options, parse=True, output_file_path=None):
-        """
-        Download the CC in raw form from a given URL ``url``,
-        for a given language ``language``.
-
-        Additional parameters can be passed in ``options``.
-
-        If ``output_file_path`` is not ``None``, write raw data to file.
-
-        If ``parse == False``, return a string containing the raw data.
-
-        If ``parse == True``, return a list of tuples, one for each fragment.
-        Each tuple is ``(begin_time, end_time, [line1, line2, ..., lineN])``.
-        """
-        retries = options.get(cls.OPTION_RETRIES, cls.RETRIES)
+        downloader_class = None
         downloader = options.get(cls.OPTION_DOWNLOADER)
-        download_function = None
-        parse_function = None
-        if YTD.can_download(url, downloader):
-            download_function = YTD.get_data
-            parse_function = YTD.parse_raw_data
-        #
-        # TODO add other downloaders here, for example:
-        #
-        # if VD.can_download(url, downloader):
-        #     raw_data = VD.get_raw_data(url, language, options)
-        #
-        if (download_function is None) or (parse_function is None):
+        if downloader is None:
+            # no explicit downloader: try determining it using can_download() functions
+            for d_class in cls.DOWNLOADERS.values():
+                if d_class.can_download(url):
+                    downloader_class = d_class
+                    break
+        else:
+            # explicit downloader requested
+            downloader_class = cls.DOWNLOADERS.get(downloader, None)
+        if downloader_class is None:
             raise NotImplementedError(u"No known backend for '%s'" % url)
+        return downloader_class
+
+    @classmethod
+    def read_closed_captions(cls, input_file_path, options):
+        """
+        Extract CC from the given file ``input_file_path``,
+        and return a ClosedCaptionList object.
+        """
+        def read_file(path):
+            with io.open(path, "r", encoding="utf-8") as input_file:
+                data = input_file.read()
+            return data
+
+        d_class = cls.select_downloader(None, options)
+        raw_data = read_file(input_file_path)
+        return d_class.parse(raw_data, language=None)
+
+    @classmethod
+    def download_closed_captions(cls, url, language, options):
+        """
+        Download the CC from a given URL ``url``,
+        for a given language ``language``,
+        parse them and return a ClosedCaptionList object.
+
+        Additional parameters can be passed in ``options``:
+
+            1. if ``output_file_path`` is specified and not ``None``,
+               write raw data to file (default: do not write);
+            2. if ``retries`` is specified , attempt that many downloads
+               before raising an exception (default: 5).
+        """
+        def write_file(path, data):
+            """
+            Write the given data to file.
+            """
+            with io.open(path, "w", encoding="utf-8") as output_file:
+                output_file.write(data)
+
         raw_data = None
+        output_file_path = options.get(cls.OPTION_OUTPUT_FILE_PATH, cls.OUTPUT_FILE_PATH)
+        retries = options.get(cls.OPTION_RETRIES, cls.RETRIES)
+
+        d_class = cls.select_downloader(url, options)
         for i in range(retries):
             try:
-                raw_data = download_function(url, language, options)
+                raw_data = d_class.download(url, language, options)
                 break
             except:
                 pass
         if raw_data is None:
             raise IOError(u"Unable to download CC data, please check your Internet connection.")
         if output_file_path is not None:
-            cls.write_file(output_file_path, raw_data)
-        if parse:
-            data = parse_function(raw_data)
-        else:
-            data = raw_data
-        return data
+            write_file(output_file_path, raw_data)
+        return d_class.parse(raw_data, language=language)

@@ -32,6 +32,7 @@ from lxml import etree
 
 from lachesis.downloaders import NotDownloadedError
 from lachesis.elements import ClosedCaption
+from lachesis.elements import ClosedCaptionList
 from lachesis.exacttiming import TimeInterval
 from lachesis.exacttiming import TimeValue
 import lachesis.globalfunctions as gf
@@ -61,19 +62,24 @@ class YouTubeDownloader(object):
     OPTION_AUTO = u"auto"
 
     @classmethod
-    def can_download(cls, url, downloader):
+    def can_download(cls, url):
         """
-        Determine if this class can download the given URL.
+        Determine if this class can download the given ``url``.
         """
+        if url is None:
+            return False
         return (
-            (downloader == cls.CODE) or
             (u"youtube.com" in url) or
             (u"youtu.be" in url) or
             (len(url) == 11)
         )
 
     @classmethod
-    def get_data(cls, url, language, options):
+    def download(cls, url, language, options):
+        """
+        Download CCs from the given ``url`` for the given ``language``,
+        and return a raw string with the result.
+        """
         auto = options.get(cls.OPTION_AUTO, False)
         handler, tmp = gf.tmp_file()
         if os.path.exists(tmp):
@@ -104,16 +110,10 @@ class YouTubeDownloader(object):
 
 
     @classmethod
-    def parse_raw_data(cls, raw):
+    def parse(cls, raw_data, language=None):
         """
-        Parse the given raw data string, and return a list of tuples:
-
-            [
-                (begin_1, end_1, [line_1_1, line_1_2, ...]),
-                (begin_2, end_2, [line_2_1]),
-                ...
-            ]
-
+        Parse the given ``raw_data`` string,
+        and return a ClosedCaptionList object.
         """
         # constants
         PLACEHOLDER_BR = u" ||| "
@@ -123,12 +123,15 @@ class YouTubeDownloader(object):
         PATTERN_BR = re.compile(r"<br[ ]*/>")
         PATTERN_SPACES = re.compile(r"\s+")
         TTML_NS = "{http://www.w3.org/ns/ttml}"
-        TTML_P = TTML_NS + "p"
+        TTML_TT = "%stt" % TTML_NS
+        TTML_P = "%sp" % TTML_NS
         TTML_BEGIN = "begin"
         TTML_END = "end"
+        XML_NS = "{http://www.w3.org/XML/1998/namespace}"
+        XML_LANG = "%slang" % XML_NS
 
         # remove spans
-        s = raw
+        s = raw_data
         s = re.sub(PATTERN_SPAN_OPEN, u"", s)
         s = re.sub(PATTERN_SPAN_CLOSE, u"", s)
         # replace br with placeholder
@@ -137,12 +140,25 @@ class YouTubeDownloader(object):
         s = re.sub(PATTERN_SPACES, u" ", s).strip()
 
         # encode to utf-8 as required by lxml
-        if gf.is_unicode(raw):
+        if gf.is_unicode(s):
             s = s.encode("utf-8")
 
-        # parse fragments
-        frags = []
+        # create tree
         root = etree.fromstring(s)
+
+        # parse language
+        xml_lang = language
+        for elem in root.iter(TTML_TT):
+            try:
+                xml_lang = elem.get(XML_LANG)
+                break
+            except:
+                pass
+
+        # create CCL object
+        ccl = ClosedCaptionList(language=xml_lang)
+
+        # parse fragments
         for elem in root.iter(TTML_P):
             begin = gf.time_from_hhmmssmmm(elem.get(TTML_BEGIN).strip())
             end = gf.time_from_hhmmssmmm(elem.get(TTML_END).strip())
@@ -159,9 +175,9 @@ class YouTubeDownloader(object):
             lines = [l.strip() for l in text.split(PLACEHOLDER_BR)]
             # make sure we return unicode strings
             lines = [gf.to_unicode_string(l) for l in lines if len(l) > 0]
-            frags.append(ClosedCaption(
+            ccl.append_cc(ClosedCaption(
                 kind=ClosedCaption.REGULAR,
                 interval=TimeInterval(TimeValue(begin), TimeValue(end)),
                 lines=lines
             ))
-        return frags
+        return ccl

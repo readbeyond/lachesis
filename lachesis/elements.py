@@ -218,6 +218,28 @@ class Token(object):
 
 
 @attr.s
+class ClosedCaptionList(object):
+    """
+    A ClosedCaptionList represents a list of ClosedCaption objects.
+    """
+
+    language = attr.ib(default=None)
+    cc_objects = attr.ib(default=attr.Factory(list), repr=False)
+
+    def __len__(self):
+        return len(self.cc_objects)
+
+    def __str__(self):
+        return u"\n".join([str(cc) for cc in self.cc_objects])
+
+    def append_cc(self, cc):
+        """
+        TBW
+        """
+        self.cc_objects.append(cc)
+
+
+@attr.s
 class ClosedCaption(object):
     """
     A ClosedCaption represents a closed caption,
