@@ -37,6 +37,8 @@ class UDPipeWrapper(BaseWrapper):
     TBW
     """
 
+    CODE = u"udpipe"
+
     MODEL_FILES_DIRECTORY_PATH = os.path.expanduser("~/udpipe_data")
 
     LANGUAGE_TO_MODEL_FILE = {

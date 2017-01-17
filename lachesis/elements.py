@@ -27,6 +27,7 @@ from __future__ import print_function
 import attr
 import os
 
+from lachesis.language import Language
 import lachesis.globalfunctions as gf
 
 
@@ -46,7 +47,9 @@ class Text(object):
     * a ``file`` or ``io.TextIOWrapper`` object
       or a path to an existing file (text will be read from it)
     """
-    def __init__(self, obj, encoding="utf-8", is_segmented=False):
+    def __init__(self, obj, encoding="utf-8", is_segmented=False, language=None):
+        # language
+        self.language = Language.from_code(language)
         # raw_string is the text as a single Unicode string
         self.raw_string = None
         # raw_sentence_strings is the text as a list of Unicode strings,
@@ -230,13 +233,53 @@ class ClosedCaptionList(object):
         return len(self.cc_objects)
 
     def __str__(self):
-        return u"\n".join([str(cc) for cc in self.cc_objects])
+        return self.marked_string
 
     def append_cc(self, cc):
         """
         TBW
         """
         self.cc_objects.append(cc)
+
+    @property
+    def marked_string(self):
+        """
+        Return the closed captions as one CC per line.
+        If a CC has multiple lines, these are separated by `` | ``.
+        """
+        return self.as_string(cc_delimiter=u"\n", line_delimiter=u" | ")
+
+    @property
+    def single_string(self):
+        """
+        Return the closed captions as a single string.
+        The different CC are not recoverable, as well as the single lines.
+        """
+        return self.as_string(cc_delimiter=u" ", line_delimiter=u" ")
+
+    @property
+    def plain_string(self):
+        """
+        Return the closed captions as one CC per line.
+        If a CC has multiple lines, these are joined (i.e., separated by a space),
+        and thus they are not recoverable.
+        """
+        return self.as_string(cc_delimiter=u"\n", line_delimiter=u" ")
+
+    @property
+    def cc_string(self):
+        """
+        Return the closed captions in ``plain`` format:
+        each CC is separated by a blank line, and might be composed of
+        one or more consecutive, non-blank lines.
+        """
+        return self.as_string(cc_delimiter=u"\n\n", line_delimiter=u"\n")
+
+    def as_string(self, cc_delimiter=u" ", line_delimiter=u" "):
+        """
+        TBW
+        """
+        return cc_delimiter.join([cc.as_string(line_delimiter=line_delimiter) for cc in self.cc_objects])
 
 
 @attr.s
@@ -256,6 +299,9 @@ class ClosedCaption(object):
     interval = attr.ib(default=None)
     lines = attr.ib(default=attr.Factory(list), repr=False)
 
+    def __str__(self):
+        return self.as_string(line_delimiter=u" | ")
+
     @property
     def has_time(self):
         """
@@ -263,5 +309,8 @@ class ClosedCaption(object):
         """
         return self.interval is not None
 
-    def __str__(self):
-        return u" | ".join(self.lines)
+    def as_string(self, line_delimiter=u" "):
+        """
+        TBW
+        """
+        return line_delimiter.join([l.strip() for l in self.lines])

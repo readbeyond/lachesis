@@ -22,5 +22,5 @@
 TBW
 """
 
-from lachesis.downloaders.downloader import Downloader
-from lachesis.downloaders.errors import NotDownloadedError
+class NotDownloadedError(Exception):
+    pass

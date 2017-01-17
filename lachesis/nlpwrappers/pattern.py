@@ -37,6 +37,8 @@ class PatternWrapper(BaseWrapper):
     TBW
     """
 
+    CODE = u"pattern"
+
     LANGUAGES = [
         Language.DUTCH,
         Language.ENGLISH,

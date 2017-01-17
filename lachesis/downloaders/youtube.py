@@ -30,7 +30,7 @@ import os
 import youtube_dl
 from lxml import etree
 
-from lachesis.downloaders import NotDownloadedError
+from lachesis.downloaders.errors import NotDownloadedError
 from lachesis.elements import ClosedCaption
 from lachesis.elements import ClosedCaptionList
 from lachesis.exacttiming import TimeInterval

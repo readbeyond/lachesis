@@ -40,6 +40,8 @@ class BaseWrapper(object):
     A wrapper for an NLP library.
     """
 
+    CODE = u"base"
+
     LANGUAGES = []
     """ The languages supported by this NLP library """
 
@@ -68,6 +70,9 @@ class BaseWrapper(object):
         The information output (sentences, token tags, etc.)
         will be stored inside the given ``text`` object.
         """
+        if (text.language is not None) and (text.language != self.language):
+            # TODO warning instead?
+            raise ValueError(u"The text has '%s' language while this NLP library has '%s' language loaded." % (text.language, self.language))
         text.clear()
         if text.is_string:
             self._analyze(text)

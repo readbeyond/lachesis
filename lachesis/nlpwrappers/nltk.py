@@ -36,6 +36,8 @@ class NLTKWrapper(BaseWrapper):
     TBW
     """
 
+    CODE = u"nltk"
+
     LANGUAGE_TO_NLTK_FILE = {
         Language.CZECH: u"czech",
         Language.DANISH: u"danish",
