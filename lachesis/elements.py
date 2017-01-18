@@ -204,6 +204,7 @@ class Token(object):
     A Token is a part of speech.
     """
     raw_string = attr.ib()
+    augmented_string = attr.ib(default=None)
     upostag = attr.ib(default=None)
     chunktag = attr.ib(default=None, repr=False)
     pnptag = attr.ib(default=None, repr=False)
@@ -234,6 +235,13 @@ class ClosedCaptionList(object):
 
     def __str__(self):
         return self.marked_string
+
+    def extend_ccs(self, ccs):
+        """
+        TBW
+        """
+        for cc in ccs:
+            self.append_cc(cc)
 
     def append_cc(self, cc):
         """

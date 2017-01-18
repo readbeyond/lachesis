@@ -51,13 +51,10 @@ class SpacyWrapper(BaseWrapper):
     def __init__(self, language, model_file_path=None):
         super(SpacyWrapper, self).__init__(language)
         import spacy
-        lo = Language.from_code(language)
-        if (lo is None) or (lo not in self.LANGUAGES):
-            raise ValueError(u"The requested language cannot be used with spaCy")
         if model_file_path is None:
             model_file_path = self.MODEL_FILES_DIRECTORY_PATH
         try:
-            self.nlp = spacy.load(self.LANGUAGE_TO_SPACY_CODE[lo], path=model_file_path)
+            self.nlp = spacy.load(self.LANGUAGE_TO_SPACY_CODE[self.language], path=model_file_path)
         except RuntimeError:
             raise ValueError(u"Unable to load model from file path '%s'. Please specify a valid path with the 'model_file_path' parameter." % model_file_path)
 

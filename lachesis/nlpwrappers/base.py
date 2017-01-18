@@ -91,7 +91,7 @@ class BaseWrapper(object):
         This is the actual function running
         the tokenizer and tagger over given Text object.
         """
-        raise NotImplementedError(u"This method should be implemented in the subclasses.")
+        raise NotImplementedError(u"This method should be implemented in a subclass.")
 
     @classmethod
     def _fix_sentence_raw_strings(cls, text):
@@ -111,6 +111,7 @@ class BaseWrapper(object):
             for token in sentence.tokens:
                 token_string = token.raw_string
                 current_idx = text_string.find(token_string, last_idx) + len(token_string)
-                acc += text_string[last_idx:current_idx]
+                token.augmented_string = text_string[last_idx:current_idx]
+                acc += token.augmented_string
                 last_idx = current_idx
             sentence.raw_string = acc.strip()

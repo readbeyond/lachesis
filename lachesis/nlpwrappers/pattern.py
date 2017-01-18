@@ -50,6 +50,7 @@ class PatternWrapper(BaseWrapper):
 
     UPOSTAG_MAP = {
         u"NN": UniversalPOSTags.NOUN,
+        u"NN-LOC": UniversalPOSTags.NOUN,
         u"VB": UniversalPOSTags.VERB,
         u"JJ": UniversalPOSTags.ADJ,
         u"RB": UniversalPOSTags.ADV,
@@ -66,22 +67,22 @@ class PatternWrapper(BaseWrapper):
 
     def __init__(self, language):
         super(PatternWrapper, self).__init__(language)
-        if language == Language.ENGLISH:
+        if self.language == Language.ENGLISH:
             from pattern.en import parse as func_parse
             from pattern.en import split as func_split
-        elif language == Language.ITALIAN:
+        elif self.language == Language.ITALIAN:
             from pattern.it import parse as func_parse
             from pattern.it import split as func_split
-        elif language == Language.SPANISH:
+        elif self.language == Language.SPANISH:
             from pattern.es import parse as func_parse
             from pattern.es import split as func_split
-        elif language == Language.FRENCH:
+        elif self.language == Language.FRENCH:
             from pattern.fr import parse as func_parse
             from pattern.fr import split as func_split
-        elif language == Language.GERMAN:
+        elif self.language == Language.GERMAN:
             from pattern.de import parse as func_parse
             from pattern.de import split as func_split
-        elif language == Language.DUTCH:
+        elif self.language == Language.DUTCH:
             from pattern.nl import parse as func_parse
             from pattern.nl import split as func_split
         else:
