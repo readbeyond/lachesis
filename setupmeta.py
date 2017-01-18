@@ -28,7 +28,7 @@ __author__ = "Alberto Pettarin"
 __email__ = "info@readbeyond.it"
 __copyright__ = "Copyright 2016-2017, Alberto Pettarin (www.albertopettarin.it)"
 __license__ = "GNU AGPL 3"
-__status__ = "Production"
+__status__ = "Pre-Alpha"
 __version__ = "0.0.1"
 
 
@@ -46,8 +46,9 @@ PKG_VERSION = "0.0.1.0"
 # NOTE: always use exact version numbers
 # NOTE: this list should be the same as requirements.txt
 PKG_INSTALL_REQUIRES = [
+    "attrs>=16.3.0",
     "lxml>=3.6.0",
-    "youtube-dl>=2016.11.22",
+    "youtube-dl>=2017.1.16",
 ]
 
 PKG_EXTRAS_REQUIRE = {}
@@ -56,6 +57,8 @@ PKG_EXTRAS_REQUIRE = {}
 # NOTE: not including the lachesis.test package to keep the size small
 PKG_PACKAGES = [
     "lachesis",
+    "lachesis.downloaders",
+    "lachesis.nlpwrappers",
     "lachesis.tools",
 ]
 
@@ -133,7 +136,7 @@ PKG_KEYWORDS = [
 
 # PyPI classifiers
 PKG_CLASSIFIERS = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 2 - Pre-Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",

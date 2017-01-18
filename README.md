@@ -3,7 +3,7 @@
 **lachesis** automates the segmentation of a transcript into closed captions
 
 * Version: 0.0.1
-* Date: 2017-01-17
+* Date: 2017-01-18
 * Developed by: [Alberto Pettarin](http://www.albertopettarin.it/)
 * License: the GNU Affero General Public License Version 3 (AGPL v3)
 * Contact: [info@readbeyond.it](mailto:info@readbeyond.it)
@@ -19,7 +19,7 @@ TBW
 pip install lachesis
 ```
 
-TODO: add directions about "installing" model files and Python NLP libraries
+TODO: add directions about installing model files and Python NLP libraries.
 
 
 ## Usage
@@ -50,14 +50,15 @@ for s in t.sentences:
 
 # explicitly specify an NLP library
 # in this case, use "nltk"
-# (other options include: "pattern", "udpipe")
+# (other options include: "pattern", "spacy", "udpipe")
 nlp2 = NLPEngine()
 nlp2.analyze(t, wrapper="nltk")
 ...
 
 # preload NLP libraries
 nlp3 = NLPEngine(preload=[
-    ("eng", "nltk"),
+    ("eng", "spacy"),
+    ("deu", "nltk"),
     ("ita", "pattern"),
     ("fra", "udpipe")
 ])

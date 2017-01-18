@@ -27,6 +27,7 @@ from __future__ import print_function
 
 from lachesis.nlpwrappers.nltk import NLTKWrapper
 from lachesis.nlpwrappers.pattern import PatternWrapper
+from lachesis.nlpwrappers.spacy import SpacyWrapper
 from lachesis.nlpwrappers.udpipe import UDPipeWrapper
 import lachesis.globalfunctions as gf
 
@@ -36,7 +37,9 @@ class NLPEngine(object):
     TBW
     """
 
+    # NOTE: wrappers are probed in this exact order
     KNOWN_WRAPPERS = [
+        SpacyWrapper,
         PatternWrapper,
         NLTKWrapper,
         UDPipeWrapper,
@@ -45,6 +48,7 @@ class NLPEngine(object):
     CODE_TO_CLASS = {
         NLTKWrapper.CODE: NLTKWrapper,
         PatternWrapper.CODE: PatternWrapper,
+        SpacyWrapper.CODE: SpacyWrapper,
         UDPipeWrapper.CODE: UDPipeWrapper,
     }
 

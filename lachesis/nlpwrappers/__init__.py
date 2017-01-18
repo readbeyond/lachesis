@@ -26,5 +26,6 @@ around different NLP packages.
 from lachesis.nlpwrappers.base import BaseWrapper
 from lachesis.nlpwrappers.nlpengine import NLPEngine
 from lachesis.nlpwrappers.nltk import NLTKWrapper
+from lachesis.nlpwrappers.spacy import SpacyWrapper
 from lachesis.nlpwrappers.pattern import PatternWrapper
 from lachesis.nlpwrappers.udpipe import UDPipeWrapper
