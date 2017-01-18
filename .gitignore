@@ -1,0 +1,24 @@
+*.pyc
+*.pyd
+*.pyo
+*.swp
+*.so
+.pybuild
+lachesis.egg-info
+bak
+build
+dist
+docs/build
+tmp
+venvs
+
+# service scripts
+zzz
+zzz_*.py
+zzz_*.sh
+
+# Eclipse/PyDev
+.project
+.pydevproject
+.settings
+
