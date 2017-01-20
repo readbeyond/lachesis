@@ -71,7 +71,7 @@ class Downloader(object):
     def read_closed_captions(cls, input_file_path, options):
         """
         Extract CC from the given file ``input_file_path``,
-        and return a ClosedCaptionList object.
+        and return a Document object.
         """
         def read_file(path):
             with io.open(path, "r", encoding="utf-8") as input_file:
@@ -87,7 +87,7 @@ class Downloader(object):
         """
         Download the CC from a given URL ``url``,
         for a given language ``language``,
-        parse them and return a ClosedCaptionList object.
+        parse them and return a Document object.
 
         Additional parameters can be passed in ``options``:
 

@@ -29,7 +29,7 @@ __email__ = "info@readbeyond.it"
 __copyright__ = "Copyright 2016-2017, Alberto Pettarin (www.albertopettarin.it)"
 __license__ = "GNU AGPL 3"
 __status__ = "Pre-Alpha"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 
 ##############################################################################
@@ -40,13 +40,12 @@ __version__ = "0.0.1"
 
 # package version
 # NOTE: generate a new one for each PyPI upload, otherwise it will fail
-PKG_VERSION = "0.0.1.0"
+PKG_VERSION = "0.0.2.0"
 
 # required packages to install
 # NOTE: always use exact version numbers
 # NOTE: this list should be the same as requirements.txt
 PKG_INSTALL_REQUIRES = [
-    "attrs>=16.3.0",
     "lxml>=3.6.0",
     "youtube-dl>=2017.1.16",
 ]
@@ -58,6 +57,7 @@ PKG_EXTRAS_REQUIRE = {}
 PKG_PACKAGES = [
     "lachesis",
     "lachesis.downloaders",
+    "lachesis.elements",
     "lachesis.nlpwrappers",
     "lachesis.tools",
 ]

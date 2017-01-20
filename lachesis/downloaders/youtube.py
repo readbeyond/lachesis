@@ -31,8 +31,10 @@ import youtube_dl
 from lxml import etree
 
 from lachesis.downloaders.errors import NotDownloadedError
-from lachesis.elements import ClosedCaption
-from lachesis.elements import ClosedCaptionList
+from lachesis.elements import Document
+from lachesis.elements import RawCCLineSpan
+from lachesis.elements import RawCCListSpan
+from lachesis.elements import RawCCSpan
 from lachesis.exacttiming import TimeInterval
 from lachesis.exacttiming import TimeValue
 import lachesis.globalfunctions as gf
@@ -112,7 +114,7 @@ class YouTubeDownloader(object):
     def parse(cls, raw_data, language=None):
         """
         Parse the given ``raw_data`` string,
-        and return a ClosedCaptionList object.
+        and return a Document object.
         """
         # constants
         PLACEHOLDER_BR = u" ||| "
@@ -154,8 +156,7 @@ class YouTubeDownloader(object):
             except:
                 pass
 
-        # create CCL object
-        ccl = ClosedCaptionList(language=xml_lang)
+        raw_ccl = RawCCListSpan()
 
         # parse fragments
         for elem in root.iter(TTML_P):
@@ -174,9 +175,12 @@ class YouTubeDownloader(object):
             lines = [l.strip() for l in text.split(PLACEHOLDER_BR)]
             # make sure we return unicode strings
             lines = [gf.to_unicode_string(l) for l in lines if len(l) > 0]
-            ccl.append_cc(ClosedCaption(
-                kind=ClosedCaption.REGULAR,
-                interval=TimeInterval(TimeValue(begin), TimeValue(end)),
-                lines=lines
+            raw_ccl.append(RawCCSpan(
+                elements=[RawCCLineSpan(raw=l) for l in lines],
+                time_interval=TimeInterval(TimeValue(begin), TimeValue(end)),
             ))
-        return ccl
+
+        # create new Document object
+        doc = Document(raw=raw_ccl, language=xml_lang)
+
+        return doc

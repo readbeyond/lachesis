@@ -26,7 +26,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import os
 
-from lachesis.elements import Sentence
+from lachesis.elements import Span
 from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
@@ -95,33 +95,30 @@ class UDPipeWrapper(BaseWrapper):
         if not self.model:
             raise ValueError(u"Unable to load model from file path '%s'. Please specify a valid path with the 'model_file_path' parameter." % model_file_path)
 
-    def _analyze(self, text):
+    def _analyze(self, document):
+        sentences = []
         import ufal.udpipe
         tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
             raise Exception("The model does not have a tokenizer.")
-        tokenizer.setText(text.as_string)
+        tokenizer.setText(document.raw_flat_string)
         error = ufal.udpipe.ProcessingError()
-        sentences = []
-        sentence = ufal.udpipe.Sentence()
-        while tokenizer.nextSentence(sentence, error):
-            sentences.append(sentence)
-            sentence = ufal.udpipe.Sentence()
+        lib_sentences = []
+        lib_sentence = ufal.udpipe.Sentence()
+        while tokenizer.nextSentence(lib_sentence, error):
+            lib_sentences.append(lib_sentence)
+            lib_sentence = ufal.udpipe.Sentence()
         if error.occurred():
             raise Exception(error.message)
-        for sentence in sentences:
-            self.model.tag(sentence, self.model.DEFAULT)
-            self.model.parse(sentence, self.model.DEFAULT)
-            useful_tokens = [w for w in sentence.words if w.form != u"<root>"]
-            raw_string = u" ".join([w.form for w in useful_tokens])
-            my_sentence = Sentence(raw_string=raw_string)
-            for token in useful_tokens:
-                if token.form != u"<root>":
-                    my_token = Token(
-                        raw_string=token.form,
-                        upostag=self.UPOSTAG_MAP[token.upostag],
-                        lemma=token.lemma
-                    )
-                    my_sentence.append_token(my_token)
-            text.append_sentence(my_sentence)
-        self._fix_sentence_raw_strings(text)
+        for lib_sentence in lib_sentences:
+            sentence_tokens = []
+            self.model.tag(lib_sentence, self.model.DEFAULT)
+            self.model.parse(lib_sentence, self.model.DEFAULT)
+            lib_useful_tokens = [w for w in lib_sentence.words if w.form != u"<root>"]
+            raw_string = u" ".join([w.form for w in lib_useful_tokens])
+            for lib_token in lib_useful_tokens:
+                if lib_token.form != u"<root>":
+                    token = Token(raw=lib_token.form, upos_tag=self.UPOSTAG_MAP[lib_token.upostag]) # lemma=lib_token.lemma
+                    sentence_tokens.append(token)
+            sentences.append((raw_string, sentence_tokens))
+        return sentences

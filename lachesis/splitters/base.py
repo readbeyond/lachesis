@@ -60,6 +60,30 @@ class BaseSplitter(object):
             return
         raise ValueError(u"This splitter does not support the '%s' language" % language)
 
+    def _is_cc_other(self, sentence):
+        """
+        TBW
+
+        Return ``True`` if the given sentence bears text that can be labeled
+        as "other" (like "(applause)", "(music)", etc.);
+        return ``False`` otherwise.
+        Currently, this function just checks if the the sentence
+        is on a single line and if it is "(...)", "[...]", or "{...}".
+        """
+        # TODO allow the user to specify her own "other" rules
+        raw = sentence.raw_string
+        if (
+            (len(raw) >= 2) and
+            (len(raw) < self.max_chars_per_line) and
+            (
+                ((raw[0] == u"(") and (raw[-1] == u")")) or
+                ((raw[0] == u"[") and (raw[-1] == u"]")) or
+                ((raw[0] == u"{") and (raw[-1] == u"}"))
+            )
+        ):
+            return True
+        return False
+
     def _split_sentence(self, sentence):
         """
         TBW

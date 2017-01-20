@@ -25,7 +25,7 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
-from lachesis.elements import Sentence
+from lachesis.elements import Span
 from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
@@ -72,17 +72,16 @@ class NLTKWrapper(BaseWrapper):
         self.word_tokenize = word_tokenize
         self.pos_tag = pos_tag
 
-    def _analyze(self, text):
-        sentences = self.sent_tokenize(text.as_string, language=self.nltk_language)
-        for sentence in sentences:
-            my_sentence = Sentence(raw_string=sentence)
-            tokens = self.word_tokenize(sentence, language=self.nltk_language)
-            tagged_tokens = self.pos_tag(tokens, tagset="universal")
-            for rs, pos in tagged_tokens:
-                my_token = Token(
-                    raw_string=rs,
-                    upostag=self.UPOSTAG_MAP[pos],
-                )
-                my_sentence.append_token(my_token)
-            text.append_sentence(my_sentence)
-        self._fix_sentence_raw_strings(text)
+    def _analyze(self, document):
+        sentences = []
+        lib_sentences = self.sent_tokenize(document.raw_flat_string, language=self.nltk_language)
+        for lib_sentence in lib_sentences:
+            sentence_tokens = []
+            lib_tokens = self.word_tokenize(lib_sentence, language=self.nltk_language)
+            tagged_tokens = self.pos_tag(lib_tokens, tagset="universal")
+            for lib_token in tagged_tokens:
+                raw, upos_tag = lib_token
+                token = Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag])
+                sentence_tokens.append(token)
+            sentences.append((lib_sentence, sentence_tokens))
+        return sentences

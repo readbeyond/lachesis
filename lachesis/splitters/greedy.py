@@ -64,24 +64,9 @@ class GreedySplitter(BaseSplitter):
             return l
         raise ValueError(u"Unknown tokenizer '%s'" % str(self.tokenizer))
 
-    def _is_other(self, sentence):
-        raw = sentence.raw_string
-        if (
-            (len(raw) >= 2) and
-            (len(raw) < self.max_chars_per_line) and
-            (
-                ((raw[0] == u"(") and (raw[-1] == u")")) or
-                ((raw[0] == u"[") and (raw[-1] == u"]")) or
-                ((raw[0] == u"{") and (raw[-1] == u"}"))
-            )
-        ):
-            return True
-        return False
-
-
     def _split_sentence(self, sentence):
-        # check for e.g. "(applause)" or similar "OTHER" fragments
-        if self._is_other(sentence):
+        # check for e.g. "(applause)" or similar OTHER fragments
+        if self._is_cc_other(sentence):
             return [CC(kind=CC.OTHER, lines=[sentence.raw_string])]
 
         # otherwise, process it

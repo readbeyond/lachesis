@@ -134,6 +134,8 @@ class Language(object):
 
     @classmethod
     def from_code(cls, code):
+        if isinstance(code, LanguageObject) and code in cls.ALL_LANGUAGES:
+            return code
         for language in cls.ALL_LANGUAGES:
             if language == code:
                 return language
