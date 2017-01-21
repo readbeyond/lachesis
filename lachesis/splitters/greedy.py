@@ -25,8 +25,7 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
-from lachesis.elements import ClosedCaption as CC
-from lachesis.elements import Sentence
+from lachesis.elements import Span
 from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.splitters.base import BaseSplitter
@@ -41,53 +40,33 @@ class GreedySplitter(BaseSplitter):
 
     LANGUAGES = Language.ALL_LANGUAGES
 
-    TOKENIZER_NLP_TOKENS = 0
-    TOKENIZER_WHITESPACE = 1
-
-    def __init__(
-        self,
-        language,
-        max_chars_per_line=BaseSplitter.MAX_CHARS_PER_LINE,
-        max_num_lines=BaseSplitter.MAX_NUM_LINES,
-        tokenizer=TOKENIZER_NLP_TOKENS
-    ):
-        super(GreedySplitter, self).__init__(language, max_chars_per_line, max_num_lines)
-        self.tokenizer = tokenizer
-
-    def _tokenize(self, sentence):
-        if self.tokenizer == self.TOKENIZER_NLP_TOKENS:
-            return [t.augmented_string for t in sentence.tokens]
-        if self.tokenizer == self.TOKENIZER_WHITESPACE:
-            # TODO is there a better way of doing this?
-            l = [s + " " for s in sentence.raw_string.split(u" ")]
-            l[-1] = l[-1].strip()
-            return l
-        raise ValueError(u"Unknown tokenizer '%s'" % str(self.tokenizer))
-
-    def _split_sentence(self, sentence):
+    def _split_sentence(self, sentence_span):
         # check for e.g. "(applause)" or similar OTHER fragments
-        if self._is_cc_other(sentence):
-            return [CC(kind=CC.OTHER, lines=[sentence.raw_string])]
+        if self._is_cc_other(sentence_span):
+            line = Span(elements=sentence_span.elements)
+            cc = Span(elements=[line])
+            return [cc]
 
         # otherwise, process it
         ccs = []
-        lines = []
-        current_line = u""
-        tokens = self._tokenize(sentence)
-        for token in tokens:
-            if len(current_line) + len(token) > self.max_chars_per_line:
-                # "close" current line
-                lines.append(current_line)
-                if len(lines) == self.max_num_lines:
-                    # "close" current cc
-                    ccs.append(CC(kind=CC.REGULAR, lines=lines))
-                    lines = []
+        line_spans = []
+        current_line_span = Span()
+
+
+        for g_tokens, g_len in self._group_tokens(sentence_span.elements):
+            c_len = len(current_line_span.string)
+            if c_len + g_len > self.max_chars_per_line:
+                # close current line and open a new one
+                line_spans.append(current_line_span)
+                if len(line_spans) == self.max_num_lines:
+                    # close current cc and open a new one
+                    ccs.append(Span(elements=line_spans))
+                    line_spans = []
                 # create a new line
-                current_line = token
-            else:
-                # append to current line
-                current_line += token
+                current_line_span = Span()
+            # append to current line
+            current_line_span.extend(g_tokens)
         # append last line and close cc
-        lines.append(current_line)
-        ccs.append(CC(kind=CC.REGULAR, lines=lines))
+        line_spans.append(current_line_span)
+        ccs.append(Span(elements=line_spans))
         return ccs

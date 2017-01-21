@@ -129,3 +129,15 @@ class Document(object):
         if self.has_raw:
             return self.raw.raw_string
         return None
+
+    @property
+    def sentences(self):
+        if self.text_view is None:
+            return []
+        return self.text_view.elements
+
+    @property
+    def ccs(self):
+        if self.ccs_view is None:
+            return []
+        return self.ccs_view.elements

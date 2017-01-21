@@ -25,7 +25,7 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
-from lachesis.elements import ClosedCaptionList
+from lachesis.elements import Span
 from lachesis.language import Language
 
 
@@ -34,7 +34,7 @@ class BaseSplitter(object):
     TBW
 
     A splitter, that is, a class that takes a Text object
-    and splits it into a ClosedCaptionList.
+    and splits it into a Span.
     """
 
     CODE = u"base"
@@ -60,7 +60,7 @@ class BaseSplitter(object):
             return
         raise ValueError(u"This splitter does not support the '%s' language" % language)
 
-    def _is_cc_other(self, sentence):
+    def _is_cc_other(self, sentence_span):
         """
         TBW
 
@@ -71,20 +71,43 @@ class BaseSplitter(object):
         is on a single line and if it is "(...)", "[...]", or "{...}".
         """
         # TODO allow the user to specify her own "other" rules
-        raw = sentence.raw_string
+        string = sentence_span.string
         if (
-            (len(raw) >= 2) and
-            (len(raw) < self.max_chars_per_line) and
+            (string is not None) and
+            (len(string) >= 2) and
+            (len(string) < self.max_chars_per_line) and
             (
-                ((raw[0] == u"(") and (raw[-1] == u")")) or
-                ((raw[0] == u"[") and (raw[-1] == u"]")) or
-                ((raw[0] == u"{") and (raw[-1] == u"}"))
+                ((string[0] == u"(") and (string[-1] == u")")) or
+                ((string[0] == u"[") and (string[-1] == u"]")) or
+                ((string[0] == u"{") and (string[-1] == u"}"))
             )
         ):
             return True
         return False
 
-    def _split_sentence(self, sentence):
+
+    def _group_tokens(self, tokens):
+        """
+        Given a list of Token objects ``tokens``,
+        return a list of list, each inner list being one or more tokens,
+        such that only the last token of each group might not have a trailing whitespace.
+
+        "For example let's say: Hello, World!" => [["For"], ["example"], ["let's"], ["say", ":"], ["Hello", ","], ["World", "!"]]
+        """
+        grouped_tokens = []
+        current_group = []
+        for token in tokens:
+            if token.trailing_whitespace:
+                current_group.append(token)
+                grouped_tokens.append(current_group)
+                current_group = []
+            else:
+                current_group.append(token)
+        if len(current_group) > 0:
+            grouped_tokens.append(current_group)
+        return [(l, sum([len(ll.raw) for ll in l])) for l in grouped_tokens]
+
+    def _split_sentence(self, sentence_span):
         """
         TBW
 
@@ -93,12 +116,12 @@ class BaseSplitter(object):
         """
         raise NotImplementedError(u"This method should be implemented in a subclass.")
 
-    def split(self, text):
+    def split(self, document):
         """
         TBW
         """
-        ccl = ClosedCaptionList(language=text.language)
-        for ts in text.sentences:
-            ccs = self._split_sentence(ts)
-            ccl.extend_ccs(ccs)
-        return ccl
+        ccs_view = Span()
+        for sentence_span in document.sentences:
+            ccs = self._split_sentence(sentence_span)
+            ccs_view.extend(ccs)
+        document.ccs_view = ccs_view

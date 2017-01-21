@@ -45,6 +45,9 @@ class Span(object):
     def append(self, obj):
         self.elements.append(obj)
 
+    def extend(self, lst):
+        self.elements.extend(lst)
+
     def __str__(self):
         return self.string
 
