@@ -8,9 +8,23 @@
 * License: the GNU Affero General Public License Version 3 (AGPL v3)
 * Contact: [info@readbeyond.it](mailto:info@readbeyond.it)
 
+**DO NOT USE THIS PACKAGE IN PRODUCTION UNTIL IT REACHES v1.0.0 !!!**
+
+
 ## Goal
 
-TBW
+**lachesis** automates the segmentation of a transcript into closed captions,
+by using POS tagging, sentence segmentation, and syntax parsing
+provided by one of the base NLP libraries below.
+
+It contains the following major functions:
+
+* download closed captions from YouTube (using ``youtube-dl``)
+* parse closed caption TTML files (using ``lxml``)
+* POS tagging a given text or closed caption file
+* segment a given text into sentences
+* segment a given text into closed captions, using different split algorithms
+* prepare input files for training seq2seq models
 
 
 ## Installation
@@ -20,6 +34,7 @@ TBW
 ```bash
 pip install lachesis
 ```
+
 
 ### Installing NLP Libraries
 
@@ -34,7 +49,7 @@ one of the following libraries:
 
 ## Usage
 
-Tokenize, split sentences, and POS tagging:
+### Tokenize, split sentences, and POS tagging:
 
 ```python
 from lachesis.elements import Document
@@ -76,7 +91,7 @@ nlp3.analyze(d)
 ...
 ```
 
-Download closed captions from YouTube or parse an existing TTML file:
+### Download closed captions from YouTube or parse an existing TTML file:
 
 ```python
 from lachesis.downloaders import Downloader
@@ -105,6 +120,10 @@ print(ccl.raw_string)           # print as blank-separated, multiple line, SRT-l
                                 # (but without timings and ids)
 print(ccl.raw_flat_string)      # print as a single string, collapsing CCs and lines
 ```
+
+### Split into closed captions
+
+TBW
 
 
 ## License

@@ -10,10 +10,24 @@ captions
 -  License: the GNU Affero General Public License Version 3 (AGPL v3)
 -  Contact: info@readbeyond.it
 
+**DO NOT USE THIS PACKAGE IN PRODUCTION UNTIL IT REACHES v1.0.0 !!!**
+
 Goal
 ----
 
-TBW
+**lachesis** automates the segmentation of a transcript into closed
+captions, by using POS tagging, sentence segmentation, and syntax
+parsing provided by one of the base NLP libraries below.
+
+It contains the following major functions:
+
+-  download closed captions from YouTube (using ``youtube-dl``)
+-  parse closed caption TTML files (using ``lxml``)
+-  POS tagging a given text or closed caption file
+-  segment a given text into sentences
+-  segment a given text into closed captions, using different split
+   algorithms
+-  prepare input files for training seq2seq models
 
 Installation
 ------------
@@ -42,6 +56,7 @@ Usage
 -----
 
 Tokenize, split sentences, and POS tagging:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -84,6 +99,7 @@ Tokenize, split sentences, and POS tagging:
     ...
 
 Download closed captions from YouTube or parse an existing TTML file:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -112,6 +128,11 @@ Download closed captions from YouTube or parse an existing TTML file:
     print(ccl.raw_string)           # print as blank-separated, multiple line, SRT-like string
                                     # (but without timings and ids)
     print(ccl.raw_flat_string)      # print as a single string, collapsing CCs and lines
+
+Split into closed captions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TBW
 
 License
 -------
