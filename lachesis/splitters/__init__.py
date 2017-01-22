@@ -19,12 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-**lachesis** automates the segmentation of a transcript into closed captions
+TBW
 """
 
-__author__ = "Alberto Pettarin"
-__email__ = "info@readbeyond.it"
-__copyright__ = "Copyright 2016-2017, Alberto Pettarin (www.albertopettarin.it)"
-__license__ = "GNU AGPL 3"
-__status__ = "Pre-Alpha"
-__version__ = "0.0.2"
+from lachesis.splitters.greedy import GreedySplitter

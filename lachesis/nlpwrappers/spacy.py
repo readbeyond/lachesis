@@ -26,7 +26,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import os
 
-from lachesis.elements import Sentence
+from lachesis.elements import Span
 from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
@@ -51,27 +51,20 @@ class SpacyWrapper(BaseWrapper):
     def __init__(self, language, model_file_path=None):
         super(SpacyWrapper, self).__init__(language)
         import spacy
-        lo = Language.from_code(language)
-        if (lo is None) or (lo not in self.LANGUAGES):
-            raise ValueError(u"The requested language cannot be used with spaCy")
         if model_file_path is None:
             model_file_path = self.MODEL_FILES_DIRECTORY_PATH
         try:
-            self.nlp = spacy.load(self.LANGUAGE_TO_SPACY_CODE[lo], path=model_file_path)
+            self.nlp = spacy.load(self.LANGUAGE_TO_SPACY_CODE[self.language], path=model_file_path)
         except RuntimeError:
             raise ValueError(u"Unable to load model from file path '%s'. Please specify a valid path with the 'model_file_path' parameter." % model_file_path)
 
-    def _analyze(self, text):
-        doc = self.nlp(text.as_string)
-        for sentence in doc.sents:
-            my_sentence = Sentence(raw_string=sentence.text)
-            for word in sentence:
-                my_token = Token(
-                    raw_string=word.text,
-                    upostag=word.pos_,
-                    chunktag=None,
-                    pnptag=None
-                )
-                my_sentence.append_token(my_token)
-            text.append_sentence(my_sentence)
-        self._fix_sentence_raw_strings(text)
+    def _analyze(self, document):
+        sentences = []
+        lib_doc = self.nlp(document.raw_flat_string)
+        for lib_sentence in lib_doc.sents:
+            sentence_tokens = []
+            for lib_word in lib_sentence:
+                token = Token(raw=lib_word.text, upos_tag=lib_word.pos_)
+                sentence_tokens.append(token)
+            sentences.append((lib_sentence.text, sentence_tokens))
+        return sentences

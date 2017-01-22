@@ -25,11 +25,11 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
-from lachesis.elements import Sentence
+from lachesis.elements import Span
 from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.nlpwrappers.base import BaseWrapper
-from lachesis.upostags import UniversalPOSTags
+from lachesis.nlpwrappers.upostags import UniversalPOSTags
 
 
 class PatternWrapper(BaseWrapper):
@@ -50,6 +50,9 @@ class PatternWrapper(BaseWrapper):
 
     UPOSTAG_MAP = {
         u"NN": UniversalPOSTags.NOUN,
+        u"NN-LOC": UniversalPOSTags.NOUN,
+        u"NN-ORG": UniversalPOSTags.NOUN,
+        u"NN-PERS": UniversalPOSTags.NOUN,
         u"VB": UniversalPOSTags.VERB,
         u"JJ": UniversalPOSTags.ADJ,
         u"RB": UniversalPOSTags.ADV,
@@ -66,22 +69,22 @@ class PatternWrapper(BaseWrapper):
 
     def __init__(self, language):
         super(PatternWrapper, self).__init__(language)
-        if language == Language.ENGLISH:
+        if self.language == Language.ENGLISH:
             from pattern.en import parse as func_parse
             from pattern.en import split as func_split
-        elif language == Language.ITALIAN:
+        elif self.language == Language.ITALIAN:
             from pattern.it import parse as func_parse
             from pattern.it import split as func_split
-        elif language == Language.SPANISH:
+        elif self.language == Language.SPANISH:
             from pattern.es import parse as func_parse
             from pattern.es import split as func_split
-        elif language == Language.FRENCH:
+        elif self.language == Language.FRENCH:
             from pattern.fr import parse as func_parse
             from pattern.fr import split as func_split
-        elif language == Language.GERMAN:
+        elif self.language == Language.GERMAN:
             from pattern.de import parse as func_parse
             from pattern.de import split as func_split
-        elif language == Language.DUTCH:
+        elif self.language == Language.DUTCH:
             from pattern.nl import parse as func_parse
             from pattern.nl import split as func_split
         else:
@@ -108,26 +111,35 @@ class PatternWrapper(BaseWrapper):
         #   tagset = None)          # Penn Treebank II (default) or UNIVERSAL.
         #
 
-    def _analyze(self, text):
+    def _analyze(self, document):
+        sentences = []
         tagged_string = self.func_parse(
-            text.as_string,
+            document.raw_flat_string,
             tokenize=True,
             tags=True,
-            chunks=True,
+            chunks=False,
             relations=False,
             lemmata=False,
             tagset="universal"
         )
-        for sentence in self.func_split(tagged_string):
-            my_sentence = Sentence(raw_string=sentence.string)
-            for token in sentence:
-                raw_string, upostag, chunktag, pnptag = token.tags
-                my_token = Token(
-                    raw_string=raw_string,
-                    upostag=self.UPOSTAG_MAP[upostag],
-                    chunktag=chunktag,
-                    pnptag=pnptag
-                )
-                my_sentence.append_token(my_token)
-            text.append_sentence(my_sentence)
-        self._fix_sentence_raw_strings(text)
+        for lib_sentence in self.func_split(tagged_string):
+            sentence_tokens = []
+            for lib_token in lib_sentence:
+                #
+                # NOTE: if chunks=True use:
+                # raw, upos_tag, chunk_tag, pnp_tag = lib_token.tags
+                # token = Token(
+                #     raw=raw,
+                #     upos_tag=self.UPOSTAG_MAP[upos_tag],
+                #     chunk_tag=chunk_tag,
+                #     pnp_tag=pnp_tag
+                # )
+                #
+                raw, upos_tag = lib_token.tags
+                # NOTE: pattern replaces "/" with "&slash;"
+                #       so we need to convert it back
+                raw = raw.replace(u"&slash;", u"/")
+                token = Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag])
+                sentence_tokens.append(token)
+            sentences.append((lib_sentence.string, sentence_tokens))
+        return sentences

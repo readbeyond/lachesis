@@ -1,3 +1,2 @@
-attrs>=16.3.0
 lxml>=3.6.0
 youtube-dl>=2017.1.16

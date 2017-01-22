@@ -25,11 +25,10 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
-from lachesis.elements import Sentence
-from lachesis.elements import Text
-from lachesis.elements import Token
+from lachesis.elements import Document
+from lachesis.elements import Span
 from lachesis.language import Language
-from lachesis.upostags import UniversalPOSTags
+from lachesis.nlpwrappers.upostags import UniversalPOSTags
 import lachesis.globalfunctions as gf
 
 
@@ -58,59 +57,40 @@ class BaseWrapper(object):
             return self
         raise ValueError(u"This NLP library does not support the '%s' language" % language)
 
-    def analyze(self, text):
+    def analyze(self, document):
         """
-        TBW
-
-        Analyze the given text, splitting it into sentences
+        Analyze the given document, splitting it into sentences
         and tagging the tokens (words) with Universal POS tags.
         Some NLP libraries (e.g., ``pattern``)
         also performs chunking at this stage.
 
         The information output (sentences, token tags, etc.)
-        will be stored inside the given ``text`` object.
+        will be stored inside the given ``document`` object.
         """
-        if (text.language is not None) and (text.language != self.language):
+        if document.raw_flat_string is None:
+            raise ValueError(u"The document has no text set.")
+        if (document.language is not None) and (document.language != self.language):
             # TODO warning instead?
-            raise ValueError(u"The text has '%s' language while this NLP library has '%s' language loaded." % (text.language, self.language))
-        text.clear()
-        if text.is_string:
-            self._analyze(text)
-        else:
-            for sentence_string in text.as_sentences:
-                sentence_text_object = Text(sentence_string)
-                self._analyze(sentence_text_object)
-                sentence_text_object.merge()
-                text.append_sentence(sentence_text_object.sentences[0])
-        return text
+            raise ValueError(u"The document has been created with the '%s' language set while this NLP library has loaded the '%s' language." % (document.language, self.language))
 
-    def _analyze(self, text):
+        # remove any information from the document
+        document.clear()
+
+        # do the actual analysis
+        document.text_view = Span(raw=document.raw_flat_string)
+        sentences = self._analyze(document)
+        for raw, tokens in sentences:
+            sentence = Span(raw=raw)
+            for token in tokens:
+                document.tokens.append(token)
+                sentence.append(token)
+            sentence.elements[-1].end_of_sentence = True
+            document.text_view.append(sentence)
+        document._set_token_whitespace()
+
+    def _analyze(self, document):
         """
-        TBW
-
         This is the actual function running
-        the tokenizer and tagger over given Text object.
+        the tokenizer and tagger over given Document object.
         """
-        raise NotImplementedError(u"This method should be implemented in the subclasses.")
-
-    @classmethod
-    def _fix_sentence_raw_strings(cls, text):
-        """
-        TBW
-
-        Fix the raw string of each sentence in the given text,
-        to match the actual text string.
-        This method will remove e.g. spaces before or after punctuation
-        introduced by the NLP parser.
-        """
-        last_idx = 0
-        current_idx = 0
-        text_string = text.as_string
-        for sentence in text.sentences:
-            acc = u""
-            for token in sentence.tokens:
-                token_string = token.raw_string
-                current_idx = text_string.find(token_string, last_idx) + len(token_string)
-                acc += text_string[last_idx:current_idx]
-                last_idx = current_idx
-            sentence.raw_string = acc.strip()
+        raise NotImplementedError(u"This method should be implemented in a subclass.")
