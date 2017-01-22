@@ -91,3 +91,15 @@ class Token(object):
         if self.end_of_sentence:
             ws = u"="
         return u"%s/%s/%s " % (self.raw, self.upos_tag, ws)
+
+
+class LineToken(Token):
+
+    def __init__(self):
+        self.raw = u" |||"
+        self.upos_tag = u"ZZZ"
+        self.chunk_tag = None
+        self.pnp_tag = None
+        self.lemma = None
+        self.trailing_whitespace = True
+        self.end_of_sentence = False

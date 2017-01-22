@@ -51,6 +51,8 @@ class PatternWrapper(BaseWrapper):
     UPOSTAG_MAP = {
         u"NN": UniversalPOSTags.NOUN,
         u"NN-LOC": UniversalPOSTags.NOUN,
+        u"NN-ORG": UniversalPOSTags.NOUN,
+        u"NN-PERS": UniversalPOSTags.NOUN,
         u"VB": UniversalPOSTags.VERB,
         u"JJ": UniversalPOSTags.ADJ,
         u"RB": UniversalPOSTags.ADV,
@@ -134,6 +136,9 @@ class PatternWrapper(BaseWrapper):
                 # )
                 #
                 raw, upos_tag = lib_token.tags
+                # NOTE: pattern replaces "/" with "&slash;"
+                #       so we need to convert it back
+                raw = raw.replace(u"&slash;", u"/")
                 token = Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag])
                 sentence_tokens.append(token)
             sentences.append((lib_sentence.string, sentence_tokens))

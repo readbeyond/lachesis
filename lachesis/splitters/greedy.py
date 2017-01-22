@@ -51,8 +51,6 @@ class GreedySplitter(BaseSplitter):
         ccs = []
         line_spans = []
         current_line_span = Span()
-
-
         for g_tokens, g_len in self._group_tokens(sentence_span.elements):
             c_len = len(current_line_span.string)
             if c_len + g_len > self.max_chars_per_line:

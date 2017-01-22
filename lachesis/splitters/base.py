@@ -85,7 +85,6 @@ class BaseSplitter(object):
             return True
         return False
 
-
     def _group_tokens(self, tokens):
         """
         Given a list of Token objects ``tokens``,
