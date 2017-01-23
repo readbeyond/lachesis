@@ -32,6 +32,7 @@ from lxml import etree
 
 from lachesis.downloaders.errors import NotDownloadedError
 from lachesis.elements import Document
+from lachesis.elements import EndOfLineToken
 from lachesis.elements import RawCCLineSpan
 from lachesis.elements import RawCCListSpan
 from lachesis.elements import RawCCSpan
@@ -175,6 +176,7 @@ class YouTubeDownloader(object):
             lines = [l.strip() for l in text.split(PLACEHOLDER_BR)]
             # make sure we return unicode strings
             lines = [gf.to_unicode_string(l) for l in lines if len(l) > 0]
+            lines = [u"%s %s" % (l, EndOfLineToken.RAW) for l in lines]
             raw_ccl.append(RawCCSpan(
                 elements=[RawCCLineSpan(raw=l) for l in lines],
                 time_interval=TimeInterval(TimeValue(begin), TimeValue(end)),

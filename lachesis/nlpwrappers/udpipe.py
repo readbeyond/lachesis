@@ -118,11 +118,7 @@ class UDPipeWrapper(BaseWrapper):
             raw_string = u" ".join([w.form for w in lib_useful_tokens])
             for lib_token in lib_useful_tokens:
                 if lib_token.form != u"<root>":
-                    token = Token(
-                        raw=lib_token.form,
-                        upos_tag=self.UPOSTAG_MAP[lib_token.upostag],
-                        lemma=lib_token.lemma
-                    )
+                    token = self._create_token(lib_token.form, lib_token.upostag, lemma=lib_token.lemma)
                     sentence_tokens.append(token)
-            sentences.append((raw_string, sentence_tokens))
+            sentences.append(sentence_tokens)
         return sentences

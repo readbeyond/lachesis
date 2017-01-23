@@ -23,10 +23,12 @@ TBW
 """
 
 from lachesis.elements.document import Document
-from lachesis.elements.span import RawTextSpan
-from lachesis.elements.span import RawSentenceSpan
 from lachesis.elements.span import RawCCLineSpan
 from lachesis.elements.span import RawCCListSpan
 from lachesis.elements.span import RawCCSpan
+from lachesis.elements.span import RawSentenceSpan
+from lachesis.elements.span import RawTextSpan
 from lachesis.elements.span import Span
+from lachesis.elements.token import EndOfLineToken
+from lachesis.elements.token import EndOfSentenceToken
 from lachesis.elements.token import Token

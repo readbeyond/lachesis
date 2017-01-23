@@ -26,7 +26,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from lachesis.elements import Document
+from lachesis.elements import EndOfSentenceToken
+from lachesis.elements import EndOfLineToken
 from lachesis.elements import Span
+from lachesis.elements import Token
 from lachesis.language import Language
 from lachesis.nlpwrappers.upostags import UniversalPOSTags
 import lachesis.globalfunctions as gf
@@ -77,16 +80,30 @@ class BaseWrapper(object):
         document.clear()
 
         # do the actual analysis
-        document.text_view = Span(raw=document.raw_flat_string)
+        document.text_view = Span()
         sentences = self._analyze(document)
-        for raw, tokens in sentences:
-            sentence = Span(raw=raw)
-            for token in tokens:
+
+        # add tokens to the document
+        for sent in sentences:
+            # remove an EndOfLineToken at the begin or end
+            if (len(sent) > 0) and (isinstance(sent[0], EndOfLineToken)):
+                sent = sent[1:]
+            if (len(sent) > 0) and (isinstance(sent[-1], EndOfLineToken)):
+                sent = sent[:-1]
+            # if there are tokens left, add them to the document
+            if len(sent) > 0:
+                sentence = Span()
+                # add all surviving tokens
+                document.tokens.extend(sent)
+                sentence.extend(sent)
+                # add end of sentence token
+                token = EndOfSentenceToken()
                 document.tokens.append(token)
                 sentence.append(token)
-            sentence.elements[-1].end_of_sentence = True
-            document.text_view.append(sentence)
-        document._set_token_whitespace()
+                document.text_view.append(sentence)
+
+        # set the trailing whitespace flag of each token
+        document._set_trailing_whitespace_attributes()
 
     def _analyze(self, document):
         """
@@ -94,3 +111,11 @@ class BaseWrapper(object):
         the tokenizer and tagger over given Document object.
         """
         raise NotImplementedError(u"This method should be implemented in a subclass.")
+
+    def _create_token(self, raw, upos_tag, lemma=None):
+        """
+        Return a new token, either a EndOfLineToken or a regular token.
+        """
+        if raw == EndOfLineToken.RAW:
+            return EndOfLineToken()
+        return Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag], lemma=lemma)

@@ -29,7 +29,8 @@ import re
 from lachesis.elements.span import RawSentenceSpan
 from lachesis.elements.span import RawTextSpan
 from lachesis.elements.span import Span
-from lachesis.elements.token import LineToken
+from lachesis.elements.token import EndOfLineToken
+from lachesis.elements.token import EndOfSentenceToken
 from lachesis.language import Language
 import lachesis.globalfunctions as gf
 
@@ -81,17 +82,19 @@ class Document(object):
             )
         raise TypeError(u"Parameter raw must be a unicode string or a list of unicode strings or a Span object. Found: '%s'" % type(raw))
 
-    def _set_token_whitespace(self):
+    def _set_trailing_whitespace_attributes(self):
         """
         Set the ``trailing_whitespace`` flag of each token,
         by analyzing the raw flat string representation of the document.
         """
         doc_string = self.raw_flat_string
+        doc_string = doc_string.replace(EndOfLineToken.RAW, u"").replace(EndOfSentenceToken.RAW, u"")
         n = len(doc_string)
         i = 0
         for t in self.tokens:
-            i = doc_string.find(t.raw, i) + len(t.raw)
-            t.trailing_whitespace = (i < n) and (doc_string[i] == u" ")
+            if t.is_regular:
+                i = doc_string.find(t.raw, i) + len(t.raw)
+                t.trailing_whitespace = (i < n) and (doc_string[i] == u" ")
 
     def clear(self):
         """
@@ -142,37 +145,3 @@ class Document(object):
         if self.ccs_view is None:
             return []
         return self.ccs_view.elements
-
-    def augment_text_view(self):
-        """
-        Inject special tokens (denoting the end of each line)
-        in the ``text_view``.
-        """
-        lines = []
-        for cc in self.raw.elements:
-            lines.extend([line.raw_string.strip() for line in cc.elements])
-
-        i = 0
-        new_tokens = []
-        current_line = Span()
-        for sentence in self.sentences:
-            new_elements = []
-            for token in sentence.elements:
-                current_line.append(token)
-                new_elements.append(token)
-                new_tokens.append(token)
-                cl = current_line.string.strip()
-                # print("Comparing: '%s' vs '%s'" % (cl, lines[i]))
-                if cl == lines[i]:
-                    # print("  END OF LINE FOUND")
-                    lt = LineToken()
-                    new_tokens.append(lt)
-                    new_elements.append(lt)
-                    current_line = Span()
-                    i += 1
-            sentence.elements = new_elements
-        self.tokens = new_tokens
-
-        # check that we found all lines
-        if i < len(lines):
-            raise RuntimeError(u"Line break alignment not completed.")

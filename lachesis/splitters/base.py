@@ -95,7 +95,7 @@ class BaseSplitter(object):
         """
         grouped_tokens = []
         current_group = []
-        for token in tokens:
+        for token in [t for t in tokens if t.is_regular]:
             if token.trailing_whitespace:
                 current_group.append(token)
                 grouped_tokens.append(current_group)

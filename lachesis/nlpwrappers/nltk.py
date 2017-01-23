@@ -81,7 +81,7 @@ class NLTKWrapper(BaseWrapper):
             tagged_tokens = self.pos_tag(lib_tokens, tagset="universal")
             for lib_token in tagged_tokens:
                 raw, upos_tag = lib_token
-                token = Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag])
+                token = self._create_token(raw, upos_tag)
                 sentence_tokens.append(token)
-            sentences.append((lib_sentence, sentence_tokens))
+            sentences.append(sentence_tokens)
         return sentences
