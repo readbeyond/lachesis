@@ -82,20 +82,6 @@ class Document(object):
             )
         raise TypeError(u"Parameter raw must be a unicode string or a list of unicode strings or a Span object. Found: '%s'" % type(raw))
 
-    def _set_trailing_whitespace_attributes(self):
-        """
-        Set the ``trailing_whitespace`` flag of each token,
-        by analyzing the raw flat string representation of the document.
-        """
-        doc_string = self.raw_flat_string
-        doc_string = doc_string.replace(EndOfLineToken.RAW, u"").replace(EndOfSentenceToken.RAW, u"")
-        n = len(doc_string)
-        i = 0
-        for t in self.tokens:
-            if t.is_regular:
-                i = doc_string.find(t.raw, i) + len(t.raw)
-                t.trailing_whitespace = (i < n) and (doc_string[i] == u" ")
-
     def clear(self):
         """
         Remove all information about tokens and views.
@@ -104,35 +90,30 @@ class Document(object):
         self.text_view = None
         self.ccs_view = None
 
-    @property
-    def has_raw(self):
-        """
-        Return ``True`` if this object has been created from a raw object.
-        """
-        return self.raw is not None
+    def __str__(self):
+        if self.text_view is not None:
+            return self.text_view.string(flat=True, clean=True)
+        if self.ccs_view is not None:
+            return self.ccs_view.string()
+        if self.has_raw:
+            return self.raw_flat_clean_string
+        return None
 
     @property
-    def raw_flat_string(self):
-        """
-        Return the document as a flat, single Unicode string,
-        or ``None`` if the document has not been initialized.
-        """
+    def raw_flat_clean_string(self):
         if self.has_raw:
-            s = self.raw.raw_flat_string
+            s = self.raw.string(raw=True, flat=True, clean=True)
             s = re.sub(u"\n", u" ", s)
             s = re.sub(r" [ ]*", u" ", s)
             return s
         return None
 
     @property
-    def raw_string(self):
+    def has_raw(self):
         """
-        Return the document as a single Unicode string,
-        or ``None`` if the document has not been initialized.
+        Return ``True`` if this object has been created from a raw object.
         """
-        if self.has_raw:
-            return self.raw.raw_string
-        return None
+        return self.raw is not None
 
     @property
     def sentences(self):

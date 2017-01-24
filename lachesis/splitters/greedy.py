@@ -52,7 +52,7 @@ class GreedySplitter(BaseSplitter):
         line_spans = []
         current_line_span = Span()
         for g_tokens, g_len in self._group_tokens(sentence_span.elements):
-            c_len = len(current_line_span.string)
+            c_len = len(current_line_span.string(raw=True))
             if c_len + g_len > self.max_chars_per_line:
                 # close current line and open a new one
                 line_spans.append(current_line_span)

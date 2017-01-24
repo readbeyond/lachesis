@@ -82,26 +82,20 @@ class Token(object):
             return self.raw + u" "
         return self.raw
 
-    @property
-    def string(self):
-        """
-        Return a string representation of the token.
-        It currently returns the augmented string.
-        """
-        return self.augmented_string
+    def string(self, raw=False, flat=False, tagged=False):
+        if tagged:
+            """
+            Return a tagged representation of the token,
+            in the form ``STRING/UPOS/C``, where:
 
-    @property
-    def tagged_string(self):
-        """
-        Return a tagged representation of the token,
-        in the form ``STRING/UPOS/C``, where:
-
-        * STRING is the token string,
-        * UPOS is the Universal POS of the token,
-        * C is "+" if the token has a trailing whitespace, "-" if it does not,
-          or "=" if the token is the last token of a sentence
-        """
-        return u"%s/%s/%s " % (self._tagged_tuple)
+            * STRING is the token string,
+            * UPOS is the Universal POS of the token,
+            * C is "+" if the token has a trailing whitespace, "-" if it does not,
+              or "=" if the token is the last token of a sentence
+            """
+            return u"%s/%s/%s " % (self._tagged_tuple)
+        else:
+            return self.augmented_string
 
     @property
     def _tagged_tuple(self):

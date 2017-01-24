@@ -117,10 +117,10 @@ class PatternWrapper(BaseWrapper):
         #   tagset = None)          # Penn Treebank II (default) or UNIVERSAL.
         #
 
-    def _analyze(self, document):
+    def _analyze(self, doc_string):
         sentences = []
         tagged_string = self.func_parse(
-            document.raw_flat_string,
+            doc_string,
             tokenize=True,
             tags=True,
             chunks=False,

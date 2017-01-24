@@ -5,7 +5,7 @@ lachesis
 captions
 
 -  Version: 0.0.2
--  Date: 2017-01-23
+-  Date: 2017-01-24
 -  Developed by: `Alberto Pettarin <http://www.albertopettarin.it/>`__
 -  License: the GNU Affero General Public License Version 3 (AGPL v3)
 -  Contact: info@readbeyond.it
@@ -27,7 +27,7 @@ It contains the following major functions:
 -  segment a given text into sentences
 -  segment a given text into closed captions, using different split
    algorithms
--  prepare input files for training seq2seq models
+-  prepare input files for training machine learning models
 
 Installation
 ------------
@@ -55,12 +55,49 @@ one of the following libraries:
 Usage
 -----
 
+Download closed captions from YouTube or parse an existing TTML file:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    from lachesis.downloaders import Downloader
+    from lachesis.language import Language
+
+    # URL of the video
+    url = u"http://www.youtube.com/watch?v=NSL_xx2Qnyc"
+
+    # language
+    language = Language.ENGLISH
+
+    # download English automatic CC, storing the raw TTML file in /tmp/
+    options = { "auto": True, "output_file_path": "/tmp/auto.ttml" }
+    doc = Downloader.download_closed_captions(url, language, options)
+    print(doc)
+
+    # download English manual CC
+    options = { "auto": False }
+    doc = Downloader.download_closed_captions(url, language, options)
+    print(doc)
+
+    # parse a given TTML file (downloaded from YouTube)
+    ifp = "/tmp/auto.ttml"
+    doc = Downloader.read_closed_captions(ifp, options={u"downloader": u"youtube"})
+
+    # retrieve document language
+    print(doc.language)
+
+    # get several representations of the CCs
+    doc.raw_flat_clean_string               # as a single string, no CC line marks, no newlines
+    doc.raw.string(flat=True, eol=u"|")     # as a single string, CC lines separated by "|" characters
+    doc.raw.string(raw=True, eol=u"")       # CC lines separated by a blank line
+
 Tokenize, split sentences, and POS tagging:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     from lachesis.elements import Document
+    from lachesis.language import Language
     from lachesis.nlpwrappers import NLPEngine
 
     # work on this Unicode string
@@ -70,69 +107,69 @@ Tokenize, split sentences, and POS tagging:
     # s = [u"Hello World.", u"This is a second sentence.", u"Third one, bla bla"]
 
     # create a Text object from the Unicode string
-    d = Document(raw=s, language=u"eng")
+    doc = Document(raw=s, language=Language.ENGLISH)
 
     # tokenize, split sentences, and POS tagging
     # the best NLP library will be chosen,
     # depending on the language of the text
     nlp1 = NLPEngine()
-    nlp1.analyze(d)
-    for s in d.text_view.elements:
-        print(s)
-        print(s.tagged_string)
+    nlp1.analyze(doc)
+
+    # the text has been divided into tokens,
+    # grouped in sentences:
+    for s in doc.sentences:
+        print(s)                                        # raw
+        print(s.string(tagged=True))                    # tagged
+        print(s.string(raw=True, eol=u"|", eos=u""))    # raw, no CC line and sentence marks
 
     # explicitly specify an NLP library
     # in this case, use "nltk"
     # (other options include: "pattern", "spacy", "udpipe")
     nlp2 = NLPEngine()
-    nlp2.analyze(d, wrapper="nltk")
+    nlp2.analyze(doc, wrapper=u"nltk")
     ...
 
-    # preload NLP libraries
+    # if you need to analyze many documents,
+    # you can preload (and keep cached) an NLP library,
+    # even different ones for different languages
     nlp3 = NLPEngine(preload=[
-        ("eng", "spacy"),
-        ("deu", "nltk"),
-        ("ita", "pattern"),
-        ("fra", "udpipe")
+        (u"eng", u"spacy"),
+        (u"deu", u"nltk"),
+        (u"ita", u"pattern"),
+        (u"fra", u"udpipe")
     ])
-    nlp3.analyze(d)
+    nlp3.analyze(doc)
     ...
-
-Download closed captions from YouTube or parse an existing TTML file:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: python
-
-    from lachesis.downloaders import Downloader
-
-    # URL of the video
-    url = u"http://www.youtube.com/watch?v=NSL_xx2Qnyc"
-
-    # download English automatic CC, storing the raw TTML file in /tmp/
-    language = u"en"
-    options = { "auto": True, "output_file_path": "/tmp/auto.ttml" }
-    ccl = Downloader.download_closed_captions(url, language, options)
-    print(ccl)
-
-    # download English manual CC
-    language = u"en"
-    options = { "auto": False }
-    ccl = Downloader.download_closed_captions(url, language, options)
-    print(ccl)
-
-    # parse a given TTML file (downloaded from YouTube)
-    ifp = "/tmp/auto.ttml"
-    ccl = Downloader.read_closed_captions(ifp, options={u"downloader": u"youtube"})
-
-    # get various representations of the CCs
-    print(ccl.raw_string)           # print as blank-separated, multiple line, SRT-like string
-                                    # (but without timings and ids)
-    print(ccl.raw_flat_string)      # print as a single string, collapsing CCs and lines
 
 Split into closed captions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBW
+.. code:: python
+
+    from lachesis.elements import Document
+    from lachesis.language import Language
+    from lachesis.nlpwrappers import NLPEngine
+    from lachesis.splitters import GreedySplitter
+
+    # create a document from a raw string
+    s = u"Hello, World. This is a second sentence, with a comma too! And a third sentence."
+    doc = Document(raw=s, language=Language.ENGLISH)
+
+    # analyze it using pattern as NLP library
+    nlpe = NLPEngine()
+    nlpe.analyze(doc, wrapper=u"pattern")
+
+    # feed the document into the greedy splitter
+    # with max 42 chars/line and max 2 lines/cc
+    gs = GreedySplitter(doc.language, 42, 2)
+    gs.split(doc)
+
+    # print the segmented CCs
+    # which can be accessed with the ccs property
+    for cc in doc.ccs:
+        for line in cc.elements:
+            print(line)
+        print(u"")
 
 License
 -------

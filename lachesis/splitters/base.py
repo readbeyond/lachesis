@@ -71,7 +71,7 @@ class BaseSplitter(object):
         is on a single line and if it is "(...)", "[...]", or "{...}".
         """
         # TODO allow the user to specify her own "other" rules
-        string = sentence_span.string
+        string = sentence_span.string(raw=True)
         if (
             (string is not None) and
             (len(string) >= 2) and

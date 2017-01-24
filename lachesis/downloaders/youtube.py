@@ -152,7 +152,7 @@ class YouTubeDownloader(object):
         xml_lang = language
         for elem in root.iter(TTML_TT):
             try:
-                xml_lang = elem.get(XML_LANG)
+                xml_lang = gf.to_unicode_string(elem.get(XML_LANG))
                 break
             except:
                 pass
