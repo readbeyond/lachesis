@@ -52,7 +52,7 @@ class Token(object):
         self.special = False
 
     def __str__(self):
-        return self.tagged_string
+        return self.augmented_string
 
     @property
     def is_special(self):
