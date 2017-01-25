@@ -378,16 +378,18 @@ def main():
             cc_count = 0
             cc_count_good = 0
             for cc_prediction in all_predictions:
+                # cc is a tuple: (idx, extension, ext_idx, real_s, pred_s, len(str_s), prob)
                 cc_prediction_sorted = sorted(cc_prediction, key=lambda x: x[6], reverse=True)
                 # for prefix_prediction in cc_prediction_sorted:
                 #     print(prefix_prediction)
                 # print(u"")
                 cc_count += 1
+                chosen = cc_prediction_sorted[0]
                 for pred in cc_prediction_sorted:
-                    if pred[5] <= 42:
+                    if (pred[5] <= 42) and (pred[4][-1] == CRFTrainer.LABEL_LAST):
                         chosen = pred
                         break
-                good = (not chosen[1]) and (chosen[3] == chosen[4]) and (chosen[3][-1] == CRFTrainer.LABEL_LAST)
+                good = (not chosen[1]) and (chosen[3] == chosen[4]) and (chosen[4][-1] == CRFTrainer.LABEL_LAST)
                 if good:
                     print("%s%s%s" % (ANSI_OK, chosen, ANSI_END))
                     cc_count_good += 1
