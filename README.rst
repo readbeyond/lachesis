@@ -5,7 +5,7 @@ lachesis
 captions
 
 -  Version: 0.0.2
--  Date: 2017-01-24
+-  Date: 2017-01-26
 -  Developed by: `Alberto Pettarin <http://www.albertopettarin.it/>`__
 -  License: the GNU Affero General Public License Version 3 (AGPL v3)
 -  Contact: info@readbeyond.it
@@ -16,18 +16,20 @@ Goal
 ----
 
 **lachesis** automates the segmentation of a transcript into closed
-captions, by using POS tagging, sentence segmentation, and syntax
-parsing provided by one of the base NLP libraries below.
+captions (CC), by using machine learning techniques and POS
+tagging/sentence segmentation/syntax parsing provided by one of the base
+NLP libraries below.
 
 It contains the following major functions:
 
--  download closed captions from YouTube (using ``youtube-dl``)
--  parse closed caption TTML files (using ``lxml``)
--  POS tagging a given text or closed caption file
+-  download closed captions from YouTube
+-  parse closed caption TTML files
+-  POS tag a given text or closed caption file
 -  segment a given text into sentences
--  segment a given text into closed captions, using different split
-   algorithms
--  prepare input files for training machine learning models
+-  segment a given text into closed captions (several algorithms are
+   available)
+-  train and use machine learning models to segment raw text into CC
+   lines
 
 Installation
 ------------
@@ -38,19 +40,61 @@ Installation
 
     pip install lachesis
 
+Installing dependencies
+~~~~~~~~~~~~~~~~~~~~~~~
+
+You might need additional packages, depending on how you plan to use
+``lachesis``:
+
+-  ``lxml >= 3.6.0`` (reading or downloading TTML files)
+-  ``youtube-dl >= 2017.1.16`` (downloading TTML files)
+-  ``python-crfsuite >= 0.9.1`` (training/applying ML-based splitters)
+
+By design choice, none of the above dependencies is installed by
+``pip``. If you want to install them all, you can use:
+
+.. code:: bash
+
+    pip install lachesis[full]
+
+TBW: option ``[full]`` not implemented yet.
+
+Alternatively, manually install only the dependencies you need. (You can
+do it before or after installing ``lachesis``, the order does not
+matter.)
+
 Installing NLP Libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To perform POS tagging and sentence segmentation, ``lachesis`` can use
-one of the following libraries:
+In addition to the dependencies listed above, to perform POS tagging and
+sentence segmentation ``lachesis`` can use one or more of the following
+libraries:
 
 -  ``pattern`` (install with ``pip install pattern``)
--  ``NLTK`` (install with ``pip install nltk`` and symlink the language
-   model directory as ``~/nltk_data``)
--  ``spaCy`` (install with ``pip install spacy`` and symlink the
-   language model directory as ``~/spacy_data``)
--  ``UDPipe`` (install with ``pip install ufal.udpipe`` and symlink the
-   language model directory as ``~/udpipe_data``)
+-  ``NLTK`` (install with ``pip install nltk``)
+-  ``spaCy`` (install with ``pip install spacy``)
+-  ``UDPipe`` (install with ``pip install ufal.udpipe``)
+
+If you want to install them all, you can use:
+
+.. code:: bash
+
+    pip install lachesis[fullnlp]
+
+TBW: option ``[fullnlp]`` not implemented yet.
+
+Except for ``pattern``, each NLP library also needs language models,
+that you need to download/install separately. Consult the documentation
+of your NLP library for details.
+
+``lachesis`` expects the following directories in your home directory
+(you can symlink them, if you installed each NLP in a different place):
+
+-  ``~/nltk_data`` for ``NLTK`` (that is the default place for NLTK);
+-  ``~/spacy_data`` for ``spaCy``;
+-  ``~/udpipe_data`` for ``UDPipe``.
+
+TBW: add more details and links to each NLP lib docs.
 
 Usage
 -----
@@ -170,6 +214,43 @@ Split into closed captions
         for line in cc.elements:
             print(line)
         print(u"")
+
+Train a CRF model to segment raw text into CC lines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
+
+    $ # /tmp/ccs/train contains several TTML files to learn from
+    $ # you can download them from YouTube using lachesis (see above)
+    $ ls /tmp/ccs/train
+    0001.ttml
+    0002.ttml
+    ...
+
+    $ # extract features and labels from them:
+    $ python -m lachesis.ml.crf dump eng /tmp/ccs/train/ /tmp/ccs/train.pickle
+    ...
+
+    $ # train the CRF model:
+    $ python -m lachesis.ml.crf train eng /tmp/ccs/train.pickle /tmp/ccs/model.crfsuite
+    ...
+
+    $ # evaluate the model on the training set
+    $ python -m lachesis.ml.crf test eng /tmp/ccs/train.pickle /tmp/ccs/model.crfsuite
+    ...
+
+    $ # you might want to evaluate on a test set, disjoint from the training set,
+    $ # that is, the test set contains CCs not seen during the training:
+    $ ls /tmp/css/test
+    1001.ttml
+    1002.ttml
+    ...
+
+    $ python -m lachesis.ml.crf dump eng /tmp/ccs/test/ /tmp/ccs/test.pickle
+    $ python -m lachesis.ml.crf test eng /tmp/ccs/test.pickle /tmp/ccs/model.crfsuite
+    ...
+
+TBW: explain how to use the ``model.crfsuite`` file.
 
 License
 -------

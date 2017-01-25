@@ -115,7 +115,7 @@ class BaseWrapper(object):
                 prev_sent = sentences[i - 1]
                 curr_sent = sentences[i]
                 while (len(prev_sent) > 0) and (len(curr_sent) > 0) and (not prev_sent[-1].trailing_whitespace):
-                    #print("MOVE: %s <= %s" % (prev_sent[-1], curr_sent[0]))
+                    # print("MOVE: %s <= %s" % (prev_sent[-1], curr_sent[0]))
                     prev_sent.append(curr_sent[0])
                     curr_sent = curr_sent[1:]
                 sentences[i - 1] = prev_sent
