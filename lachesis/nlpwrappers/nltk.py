@@ -72,16 +72,16 @@ class NLTKWrapper(BaseWrapper):
         self.word_tokenize = word_tokenize
         self.pos_tag = pos_tag
 
-    def _analyze(self, document):
+    def _analyze(self, doc_string):
         sentences = []
-        lib_sentences = self.sent_tokenize(document.raw_flat_string, language=self.nltk_language)
+        lib_sentences = self.sent_tokenize(doc_string, language=self.nltk_language)
         for lib_sentence in lib_sentences:
             sentence_tokens = []
             lib_tokens = self.word_tokenize(lib_sentence, language=self.nltk_language)
             tagged_tokens = self.pos_tag(lib_tokens, tagset="universal")
             for lib_token in tagged_tokens:
                 raw, upos_tag = lib_token
-                token = Token(raw=raw, upos_tag=self.UPOSTAG_MAP[upos_tag])
+                token = self._create_token(raw, upos_tag)
                 sentence_tokens.append(token)
-            sentences.append((lib_sentence, sentence_tokens))
+            sentences.append(sentence_tokens)
         return sentences

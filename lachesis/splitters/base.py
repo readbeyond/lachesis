@@ -71,7 +71,7 @@ class BaseSplitter(object):
         is on a single line and if it is "(...)", "[...]", or "{...}".
         """
         # TODO allow the user to specify her own "other" rules
-        string = sentence_span.string
+        string = sentence_span.string(raw=True)
         if (
             (string is not None) and
             (len(string) >= 2) and
@@ -95,7 +95,7 @@ class BaseSplitter(object):
         """
         grouped_tokens = []
         current_group = []
-        for token in tokens:
+        for token in [t for t in tokens if t.is_regular]:
             if token.trailing_whitespace:
                 current_group.append(token)
                 grouped_tokens.append(current_group)

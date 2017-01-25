@@ -45,10 +45,7 @@ PKG_VERSION = "0.0.2.0"
 # required packages to install
 # NOTE: always use exact version numbers
 # NOTE: this list should be the same as requirements.txt
-PKG_INSTALL_REQUIRES = [
-    "lxml>=3.6.0",
-    "youtube-dl>=2017.1.16",
-]
+PKG_INSTALL_REQUIRES = []
 
 PKG_EXTRAS_REQUIRE = {}
 
@@ -58,6 +55,7 @@ PKG_PACKAGES = [
     "lachesis",
     "lachesis.downloaders",
     "lachesis.elements",
+    "lachesis.ml",
     "lachesis.nlpwrappers",
     "lachesis.tools",
 ]

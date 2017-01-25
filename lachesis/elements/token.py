@@ -41,8 +41,7 @@ class Token(object):
         chunk_tag=None,
         pnp_tag=None,
         lemma=None,
-        trailing_whitespace=False,
-        end_of_sentence=False
+        trailing_whitespace=False
     ):
         self.raw = raw
         self.upos_tag = upos_tag
@@ -50,10 +49,27 @@ class Token(object):
         self.pnp_tag = pnp_tag
         self.lemma = lemma
         self.trailing_whitespace = trailing_whitespace
-        self.end_of_sentence = end_of_sentence
+        self.special = False
 
     def __str__(self):
-        return self.tagged_string
+        return self.augmented_string
+
+    @property
+    def is_special(self):
+        """
+        Return ``True`` if this token is special
+        (e.g., a token introduced for analysis purposes
+        that must be ignored otherwise).
+        """
+        return self.special
+
+    @property
+    def is_regular(self):
+        """
+        Return ``True`` if this token is regular
+        (i.e., not special).
+        """
+        return not self.is_special
 
     @property
     def augmented_string(self):
@@ -66,40 +82,67 @@ class Token(object):
             return self.raw + u" "
         return self.raw
 
-    @property
-    def string(self):
-        """
-        Return a string representation of the token.
-        It currently returns the augmented string.
-        """
-        return self.augmented_string
+    def string(self, raw=False, flat=False, tagged=False):
+        if tagged:
+            """
+            Return a tagged representation of the token,
+            in the form ``STRING/UPOS/C``, where:
+
+            * STRING is the token string,
+            * UPOS is the Universal POS of the token,
+            * C is "+" if the token has a trailing whitespace, "-" if it does not,
+              or "=" if the token is the last token of a sentence
+            """
+            return u"%s/%s/%s " % (self._tagged_tuple)
+        else:
+            return self.augmented_string
 
     @property
-    def tagged_string(self):
-        """
-        Return a tagged representation of the token,
-        in the form ``STRING/UPOS/C``, where:
-
-        * STRING is the token string,
-        * UPOS is the Universal POS of the token,
-        * C is "+" if the token has a trailing whitespace, "-" if it does not,
-          or "=" if the token is the last token of a sentence
-        """
-        ws = u"-"
-        if self.trailing_whitespace:
-            ws = u"+"
-        if self.end_of_sentence:
+    def _tagged_tuple(self):
+        if self.is_special:
             ws = u"="
-        return u"%s/%s/%s " % (self.raw, self.upos_tag, ws)
+        elif self.trailing_whitespace:
+            ws = u"+"
+        else:
+            ws = u"-"
+        return (self.raw, self.upos_tag, ws)
+
+    @property
+    def ml_string(self):
+        return (u"%s|||%s|||%s" % (self._tagged_tuple)).replace(u"&", u"&amp;")
 
 
-class LineToken(Token):
+class EndOfSentenceToken(Token):
+
+    RAW = u"lachesisendofsentencetoken"
+    UPOS_TAG = u"YYY"
 
     def __init__(self):
-        self.raw = u" |||"
-        self.upos_tag = u"ZZZ"
-        self.chunk_tag = None
-        self.pnp_tag = None
-        self.lemma = None
+        super(EndOfSentenceToken, self).__init__(
+            raw=self.RAW,
+            upos_tag=self.UPOS_TAG
+        )
         self.trailing_whitespace = True
-        self.end_of_sentence = False
+        self.special = True
+
+    @property
+    def ml_string(self):
+        return u"%s" % (self.upos_tag)
+
+
+class EndOfLineToken(Token):
+
+    RAW = u"lachesisendoflinetoken"
+    UPOS_TAG = u"ZZZ"
+
+    def __init__(self):
+        super(EndOfLineToken, self).__init__(
+            raw=self.RAW,
+            upos_tag=self.UPOS_TAG
+        )
+        self.trailing_whitespace = True
+        self.special = True
+
+    @property
+    def ml_string(self):
+        return u"%s" % (self.upos_tag)

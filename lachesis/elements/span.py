@@ -25,6 +25,8 @@ TBW
 from __future__ import absolute_import
 from __future__ import print_function
 
+from lachesis.elements.token import EndOfLineToken
+from lachesis.elements.token import EndOfSentenceToken
 from lachesis.language import Language
 import lachesis.globalfunctions as gf
 
@@ -49,35 +51,40 @@ class Span(object):
         self.elements.extend(lst)
 
     def __str__(self):
-        return self.string
+        return self.string(flat=True, clean=True)
 
     def _helper_string(self, delimiter, raw=False, flat=False, tagged=False):
         if raw:
             if self.raw is not None:
                 return self.raw
             if flat:
-                return delimiter.join([e.raw_flat_string for e in self.elements])
-            return delimiter.join([e.raw_string for e in self.elements])
+                return delimiter.join([e.string(raw=True, flat=True) for e in self.elements])
+            return delimiter.join([e.string(raw=True) for e in self.elements])
         else:
             if tagged:
-                return delimiter.join([e.tagged_string for e in self.elements])
-            return delimiter.join([e.string for e in self.elements])
+                return delimiter.join([e.string(tagged=True) for e in self.elements])
+            return delimiter.join([e.string() for e in self.elements])
 
-    @property
-    def string(self):
-        return self._helper_string(self.JOINER, raw=False, tagged=False)
+    def _clean_eol_eos(self, s, eol=None, eos=None):
+        if eol is not None:
+            s = s.replace(EndOfLineToken.RAW, eol)
+        if eos is not None:
+            s = s.replace(EndOfSentenceToken.RAW, eos)
+        return s
 
-    @property
-    def tagged_string(self):
-        return self._helper_string(self.JOINER, raw=False, tagged=True)
-
-    @property
-    def raw_string(self):
-        return self._helper_string(self.JOINER, raw=True, flat=False)
-
-    @property
-    def raw_flat_string(self):
-        return self._helper_string(self.FLAT_JOINER, raw=True, flat=True)
+    def string(self, raw=False, flat=False, tagged=False, clean=False, eol=None, eos=None):
+        if tagged:
+            s = self._helper_string(self.JOINER, raw=False, tagged=True)
+        elif flat:
+            s = self._helper_string(self.FLAT_JOINER, raw=True, flat=True)
+        elif raw:
+            s = self._helper_string(self.JOINER, raw=True, flat=False)
+        else:
+            s = self._helper_string(self.JOINER, raw=False, tagged=False)
+        if clean:
+            eol = u""
+            eos = u""
+        return self._clean_eol_eos(s, eol, eos)
 
 
 class RawTextSpan(Span):
@@ -94,6 +101,10 @@ class RawCCListSpan(Span):
     JOINER = u"\n\n"
     FLAT_JOINER = u" "
 
+    @property
+    def ccs(self):
+        return self.elements
+
 
 class RawCCSpan(Span):
     JOINER = u"\n"
@@ -103,6 +114,17 @@ class RawCCSpan(Span):
         super(RawCCSpan, self).__init__(raw=raw, elements=elements)
         self.time_interval = time_interval
 
+    @property
+    def lines(self):
+        return self.elements
+
 
 class RawCCLineSpan(Span):
-    pass
+
+    @property
+    def line(self):
+        return self.raw
+
+    def string(self, raw=False, flat=False, tagged=False, clean=False, eol=None, eos=None):
+        # overrides with raw=True, as this element only contains the raw string
+        return super(RawCCLineSpan, self).string(raw=True, flat=flat, tagged=tagged, clean=clean, eol=eol, eos=eos)

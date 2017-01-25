@@ -58,13 +58,13 @@ class SpacyWrapper(BaseWrapper):
         except RuntimeError:
             raise ValueError(u"Unable to load model from file path '%s'. Please specify a valid path with the 'model_file_path' parameter." % model_file_path)
 
-    def _analyze(self, document):
+    def _analyze(self, doc_string):
         sentences = []
-        lib_doc = self.nlp(document.raw_flat_string)
+        lib_doc = self.nlp(doc_string)
         for lib_sentence in lib_doc.sents:
             sentence_tokens = []
             for lib_word in lib_sentence:
-                token = Token(raw=lib_word.text, upos_tag=lib_word.pos_)
+                token = self._create_token(lib_word.text, lib_word.pos_)
                 sentence_tokens.append(token)
-            sentences.append((lib_sentence.text, sentence_tokens))
+            sentences.append(sentence_tokens)
         return sentences

@@ -95,13 +95,13 @@ class UDPipeWrapper(BaseWrapper):
         if not self.model:
             raise ValueError(u"Unable to load model from file path '%s'. Please specify a valid path with the 'model_file_path' parameter." % model_file_path)
 
-    def _analyze(self, document):
+    def _analyze(self, doc_string):
         sentences = []
         import ufal.udpipe
         tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
             raise Exception("The model does not have a tokenizer.")
-        tokenizer.setText(document.raw_flat_string)
+        tokenizer.setText(doc_string)
         error = ufal.udpipe.ProcessingError()
         lib_sentences = []
         lib_sentence = ufal.udpipe.Sentence()
@@ -115,14 +115,9 @@ class UDPipeWrapper(BaseWrapper):
             self.model.tag(lib_sentence, self.model.DEFAULT)
             self.model.parse(lib_sentence, self.model.DEFAULT)
             lib_useful_tokens = [w for w in lib_sentence.words if w.form != u"<root>"]
-            raw_string = u" ".join([w.form for w in lib_useful_tokens])
             for lib_token in lib_useful_tokens:
                 if lib_token.form != u"<root>":
-                    token = Token(
-                        raw=lib_token.form,
-                        upos_tag=self.UPOSTAG_MAP[lib_token.upostag],
-                        lemma=lib_token.lemma
-                    )
+                    token = self._create_token(lib_token.form, lib_token.upostag, lemma=lib_token.lemma)
                     sentence_tokens.append(token)
-            sentences.append((raw_string, sentence_tokens))
+            sentences.append(sentence_tokens)
         return sentences

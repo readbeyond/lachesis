@@ -13,6 +13,7 @@ tmp
 venvs
 
 # service scripts
+xxx
 zzz
 zzz_*.py
 zzz_*.sh
