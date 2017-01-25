@@ -177,6 +177,7 @@ class YouTubeDownloader(object):
             # make sure we return unicode strings
             lines = [gf.to_unicode_string(l) for l in lines if len(l) > 0]
             lines = [u"%s %s" % (l, EndOfLineToken.RAW) for l in lines]
+            # append span objects
             raw_ccl.append(RawCCSpan(
                 elements=[RawCCLineSpan(raw=l) for l in lines],
                 time_interval=TimeInterval(TimeValue(begin), TimeValue(end)),

@@ -65,23 +65,26 @@ class Span(object):
                 return delimiter.join([e.string(tagged=True) for e in self.elements])
             return delimiter.join([e.string() for e in self.elements])
 
-    def string(self, raw=False, flat=False, tagged=False, clean=False, eol=None, eos=None):
-        if tagged:
-            s = self._helper_string(self.JOINER, raw=False, tagged=True)
-        elif raw:
-            s = self._helper_string(self.JOINER, raw=True, flat=False)
-        elif flat:
-            s = self._helper_string(self.FLAT_JOINER, raw=True, flat=True)
-        else:
-            s = self._helper_string(self.JOINER, raw=False, tagged=False)
-        if clean:
-            s = s.replace(EndOfLineToken.RAW, u"")
-            s = s.replace(EndOfSentenceToken.RAW, u"")
+    def _clean_eol_eos(self, s, eol=None, eos=None):
         if eol is not None:
             s = s.replace(EndOfLineToken.RAW, eol)
         if eos is not None:
             s = s.replace(EndOfSentenceToken.RAW, eos)
         return s
+
+    def string(self, raw=False, flat=False, tagged=False, clean=False, eol=None, eos=None):
+        if tagged:
+            s = self._helper_string(self.JOINER, raw=False, tagged=True)
+        elif flat:
+            s = self._helper_string(self.FLAT_JOINER, raw=True, flat=True)
+        elif raw:
+            s = self._helper_string(self.JOINER, raw=True, flat=False)
+        else:
+            s = self._helper_string(self.JOINER, raw=False, tagged=False)
+        if clean:
+            eol = u""
+            eos = u""
+        return self._clean_eol_eos(s, eol, eos)
 
 
 class RawTextSpan(Span):
@@ -98,6 +101,10 @@ class RawCCListSpan(Span):
     JOINER = u"\n\n"
     FLAT_JOINER = u" "
 
+    @property
+    def ccs(self):
+        return self.elements
+
 
 class RawCCSpan(Span):
     JOINER = u"\n"
@@ -113,4 +120,11 @@ class RawCCSpan(Span):
 
 
 class RawCCLineSpan(Span):
-    pass
+
+    @property
+    def line(self):
+        return self.raw
+
+    def string(self, raw=False, flat=False, tagged=False, clean=False, eol=None, eos=None):
+        # overrides with raw=True, as this element only contains the raw string
+        return super(RawCCLineSpan, self).string(raw=True, flat=flat, tagged=tagged, clean=clean, eol=eol, eos=eos)

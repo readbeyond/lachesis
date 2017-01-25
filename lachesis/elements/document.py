@@ -100,6 +100,12 @@ class Document(object):
         return None
 
     @property
+    def raw_string(self):
+        if self.has_raw:
+            return self.raw.string(eol=u"", eos=u"")
+        return None
+
+    @property
     def raw_flat_clean_string(self):
         if self.has_raw:
             s = self.raw.string(raw=True, flat=True, clean=True)

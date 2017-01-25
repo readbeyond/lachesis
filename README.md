@@ -79,9 +79,9 @@ doc = Downloader.read_closed_captions(ifp, options={u"downloader": u"youtube"})
 print(doc.language)
 
 # get several representations of the CCs
-doc.raw_flat_clean_string               # as a single string, no CC line marks, no newlines
-doc.raw.string(flat=True, eol=u"|")     # as a single string, CC lines separated by "|" characters
-doc.raw.string(raw=True, eol=u"")       # CC lines separated by a blank line
+doc.raw_string                          # as a multi line string, similar to SRT but w/o ids or times
+doc.raw_flat_clean_string               # as a single line string, w/o CC line marks
+doc.raw.string(flat=True, eol=u"|")     # as a single line string, CC lines separated by '|' characters
 ```
 
 ### Tokenize, split sentences, and POS tagging:
