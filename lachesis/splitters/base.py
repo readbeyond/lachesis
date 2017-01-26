@@ -39,6 +39,9 @@ class BaseSplitter(object):
 
     CODE = u"base"
 
+    CHECK_LANGUAGE = True
+    """ Check the language parameter during initialization """
+
     LANGUAGES = []
     """ The languages supported by this splitter """
 
@@ -51,14 +54,16 @@ class BaseSplitter(object):
     def __init__(self, language, max_chars_per_line=MAX_CHARS_PER_LINE, max_num_lines=MAX_NUM_LINES):
         self.max_chars_per_line = max_chars_per_line
         self.max_num_lines = max_num_lines
-        lfc = Language.from_code(language)
+        self.language = language
+        if self.CHECK_LANGUAGE:
+            self._check_language()
+
+    def _check_language(self):
+        lfc = Language.from_code(self.language)
         if (lfc is not None) and (lfc in self.LANGUAGES):
             self.language = lfc
             return
-        if language in self.LANGUAGES:
-            self.language = language
-            return
-        raise ValueError(u"This splitter does not support the '%s' language" % language)
+        raise ValueError(u"This splitter does not support the '%s' language" % self.language)
 
     def _is_cc_other(self, sentence_span):
         """

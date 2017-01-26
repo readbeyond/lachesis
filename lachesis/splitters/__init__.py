@@ -23,3 +23,4 @@ TBW
 """
 
 from lachesis.splitters.greedy import GreedySplitter
+from lachesis.splitters.crf import CRFSplitter

@@ -22,3 +22,6 @@
 **lachesis.ml** is a collection of machine learning
 trainers and taggers
 """
+
+from lachesis.ml.crf import CRFTrainer
+from lachesis.ml.crf import CRFPredictor

@@ -36,6 +36,7 @@ from lachesis.language import Language
 from lachesis.nlpwrappers import NLPEngine
 import lachesis.globalfunctions as gf
 
+# TODO push these down below main()
 ANSI_ERROR = u"\033[91m"
 ANSI_OK = u"\033[92m"
 ANSI_WARNING = u"\033[93m"
