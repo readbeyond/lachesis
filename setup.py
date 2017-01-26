@@ -45,7 +45,7 @@ __email__ = "info@readbeyond.it"
 __copyright__ = "Copyright 2016-2017, Alberto Pettarin (www.albertopettarin.it)"
 __license__ = "GNU AGPL 3"
 __status__ = "Pre-Alpha"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 ##############################################################################

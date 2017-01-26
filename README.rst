@@ -4,7 +4,7 @@ lachesis
 **lachesis** automates the segmentation of a transcript into closed
 captions
 
--  Version: 0.0.2
+-  Version: 0.0.3
 -  Date: 2017-01-26
 -  Developed by: `Alberto Pettarin <http://www.albertopettarin.it/>`__
 -  License: the GNU Affero General Public License Version 3 (AGPL v3)
@@ -89,8 +89,6 @@ By design choice, none of the above dependencies is installed by
 
     pip install lachesis[full]
 
-TBW: option ``[full]`` not implemented yet.
-
 Alternatively, manually install only the dependencies you need. (You can
 do it before or after installing ``lachesis``, the order does not
 matter.)
@@ -115,9 +113,9 @@ If you want to install them all, you can use:
 
 .. code:: bash
 
-    pip install lachesis[fullnlp]
+    pip install lachesis[nlp]
 
-TBW: option ``[fullnlp]`` not implemented yet.
+or ``[fullnlp]`` if you also want ``[full]`` as above.
 
 Each NLP library also needs language models which you need to
 download/install separately. Consult the documentation of your NLP
@@ -266,34 +264,31 @@ Tokenize, split sentences, and POS tagging
     # work on this Unicode string
     s = u"Hello, World. This is a second sentence, with a comma too! And a third sentence."
 
-    # but you can also pass a list with pre-split text
+    # but you can also pass a list with pre-split sentences
     # s = [u"Hello World.", u"This is a second sentence.", u"Third one, bla bla"]
 
     # create a Text object from the Unicode string
     doc = Document(raw=s, language=Language.ENGLISH)
 
     # tokenize, split sentences, and POS tagging
-    # the best NLP library will be chosen,
-    # depending on the language of the text
+    # the best available NLP library will be chosen
     nlp1 = NLPEngine()
     nlp1.analyze(doc)
 
-    # the text has been divided into tokens,
-    # grouped in sentences:
+    # the text has been divided into tokens, grouped in sentences
     for s in doc.sentences:
         print(s)                                        # raw
         print(s.string(tagged=True))                    # tagged
-        print(s.string(raw=True, eol=u"|", eos=u""))    # raw, no CC line and sentence marks
+        print(s.string(raw=True, eol=u"|", eos=u""))    # raw w/o CC line and sentence marks
 
-    # explicitly specify an NLP library
-    # in this case, use "nltk"
-    # (other options include: "pattern", "spacy", "udpipe")
+    # explicitly specify the NLP library NLTK,
+    # other options include: "pattern", "spacy", "udpipe"
     nlp2 = NLPEngine()
     nlp2.analyze(doc, wrapper=u"nltk")
     ...
 
     # if you need to analyze many documents,
-    # you can preload (and keep cached) an NLP library,
+    # preload (and keep in cache) an NLP library,
     # even different ones for different languages
     nlp3 = NLPEngine(preload=[
         (u"en", u"spacy"),
@@ -318,17 +313,15 @@ Split into closed captions
     s = u"Hello, World. This is a second sentence, with a comma too! And a third sentence."
     doc = Document(raw=s, language=Language.ENGLISH)
 
-    # analyze it using pattern as NLP library
+    # analyze it using the NLP library Pattern
     nlpe = NLPEngine()
     nlpe.analyze(doc, wrapper=u"pattern")
 
-    # feed the document into the greedy splitter
-    # with max 42 chars/line and max 2 lines/cc
+    # feed the document into the greedy splitter (max 42 chars/line, max 2 lines/cc)
     gs = GreedySplitter(doc.language, 42, 2)
     gs.split(doc)
 
     # print the segmented CCs
-    # which can be accessed with the ccs property
     for cc in doc.ccs:
         for line in cc.elements:
             print(line)
