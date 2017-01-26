@@ -56,6 +56,9 @@ class LanguageObject(object):
     def __repr__(self):
         return self.name
 
+    def canonical_code(self):
+        return self.codes[0]
+
 
 class Language(object):
     """
@@ -134,8 +137,9 @@ class Language(object):
 
     @classmethod
     def from_code(cls, code):
-        if isinstance(code, LanguageObject) and code in cls.ALL_LANGUAGES:
+        if (isinstance(code, LanguageObject)) and (code in cls.ALL_LANGUAGES):
             return code
+        code = gf.to_unicode_string(code)
         for language in cls.ALL_LANGUAGES:
             if language == code:
                 return language

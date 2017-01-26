@@ -39,11 +39,15 @@ class SpacyWrapper(BaseWrapper):
 
     CODE = u"spacy"
 
-    MODEL_FILES_DIRECTORY_PATH = os.path.expanduser("~/spacy_data")
+    MODEL_FILES_DIRECTORY_PATH = os.path.join(
+        os.path.expanduser("~"),
+        "lachesis_data",
+        "spacy_data"
+    )
 
     LANGUAGE_TO_SPACY_CODE = {
         Language.ENGLISH: u"en",
-        # Language.GERMAN: u"de",
+        Language.GERMAN: u"de",
     }
 
     LANGUAGES = LANGUAGE_TO_SPACY_CODE.keys()

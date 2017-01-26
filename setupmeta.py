@@ -29,7 +29,7 @@ __email__ = "info@readbeyond.it"
 __copyright__ = "Copyright 2016-2017, Alberto Pettarin (www.albertopettarin.it)"
 __license__ = "GNU AGPL 3"
 __status__ = "Pre-Alpha"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 ##############################################################################
@@ -40,14 +40,35 @@ __version__ = "0.0.2"
 
 # package version
 # NOTE: generate a new one for each PyPI upload, otherwise it will fail
-PKG_VERSION = "0.0.2.0"
+PKG_VERSION = "0.0.3.0"
 
 # required packages to install
 # NOTE: always use exact version numbers
 # NOTE: this list should be the same as requirements.txt
 PKG_INSTALL_REQUIRES = []
 
-PKG_EXTRAS_REQUIRE = {}
+PKG_EXTRAS_REQUIRE = {
+    "full": [
+        "lxml>=3.6.0",
+        "python-crfsuite>=0.9.1",
+        "youtube-dl>=2017.1.16",
+    ],
+    "fullnlp": [
+        "lxml>=3.6.0",
+        "python-crfsuite>=0.9.1",
+        "youtube-dl>=2017.1.16",
+        "pattern>=2.6",
+        "nltk>=3.2.2",
+        "spacy>=1.6.0",
+        "ufal.udpipe>=1.0.0.1",
+    ],
+    "nlp": [
+        "pattern>=2.6",
+        "nltk>=3.2.2",
+        "spacy>=1.6.0",
+        "ufal.udpipe>=1.0.0.1",
+    ]
+}
 
 # packages to be distributed
 # NOTE: not including the lachesis.test package to keep the size small
@@ -57,6 +78,7 @@ PKG_PACKAGES = [
     "lachesis.elements",
     "lachesis.ml",
     "lachesis.nlpwrappers",
+    "lachesis.splitters",
     "lachesis.tools",
 ]
 
