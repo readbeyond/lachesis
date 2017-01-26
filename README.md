@@ -105,10 +105,10 @@ In addition to the dependencies listed above,
 to perform POS tagging and sentence segmentation
 ``lachesis`` can use one or more of the following libraries:
 
-* ``Pattern`` (install with ``pip install pattern``, [Web page](http://www.clips.ua.ac.be/pattern))
-* ``NLTK`` (install with ``pip install nltk``, [Web page](http://www.nltk.org/))
-* ``spaCy`` (install with ``pip install spacy``, [Web page](https://spacy.io/))
-* ``UDPipe`` (install with ``pip install ufal.udpipe``, [Web page](https://ufal.mff.cuni.cz/))
+* ``Pattern`` (install with ``pip install pattern``, [see here](http://www.clips.ua.ac.be/pattern))
+* ``NLTK`` (install with ``pip install nltk``, [see here](http://www.nltk.org/))
+* ``spaCy`` (install with ``pip install spacy``, [see here](https://spacy.io/))
+* ``UDPipe`` (install with ``pip install ufal.udpipe``, [see here](https://ufal.mff.cuni.cz/))
 
 If you want to install them all, you can use:
 
@@ -125,9 +125,9 @@ Consult the documentation of your NLP library for details.
 ``lachesis`` expects the following directories in your home directory
 (you can symlink them, if you installed each NLP library in a different place):
 
-* ``~/lachesis_data/nltk_data`` for ``NLTK`` (see [docs](http://www.nltk.org/data.html));
-* ``~/lachesis_data/spacy_data`` for ``spaCy`` (see [docs](https://spacy.io/docs/usage/));
-* ``~/lachesis_data/udpipe_data`` for ``UDPipe`` (see [docs](https://ufal.mff.cuni.cz/udpipe)).
+* ``~/lachesis_data/nltk_data`` for ``NLTK`` ([see here](http://www.nltk.org/data.html));
+* ``~/lachesis_data/spacy_data`` for ``spaCy`` ([see here](https://spacy.io/docs/usage/));
+* ``~/lachesis_data/udpipe_data`` for ``UDPipe`` ([see here](https://ufal.mff.cuni.cz/udpipe)).
 
 The NLP library ``Pattern`` does not need a separate download
 of its language models, as they are bundled in the file
@@ -266,6 +266,7 @@ nlp3.analyze(doc)
 from lachesis.elements import Document
 from lachesis.language import Language
 from lachesis.nlpwrappers import NLPEngine
+from lachesis.splitters import CRFSplitter
 from lachesis.splitters import GreedySplitter
 
 # create a document from a raw string
@@ -276,15 +277,27 @@ doc = Document(raw=s, language=Language.ENGLISH)
 nlpe = NLPEngine()
 nlpe.analyze(doc, wrapper=u"pattern")
 
-# feed the document into the greedy splitter (max 42 chars/line, max 2 lines/cc)
-gs = GreedySplitter(doc.language, 42, 2)
-gs.split(doc)
+# feed the document into the CRF splitter (max 42 chars/line, max 2 lines/cc)
+spl = CRFSplitter(doc.language, 42, 2)
+spl.split(doc)
 
 # print the segmented CCs
 for cc in doc.ccs:
     for line in cc.elements:
         print(line)
     print(u"")
+
+# the default location for CRF model files is ~/lachesis_data/crf_data/
+# but you can also specify a different path
+spl = CRFSplitter(doc.language, 42, 2, model_file_path="/tmp/yourmodel.crfsuite")
+spl.split(doc)
+
+# if you do not have pycrfsuite installed
+# or the CRF model file for the document language,
+# you can use the GreedySplitter
+gs = GreedySplitter(doc.language, 42, 2)
+gs.split(doc)
+
 ```
 
 ### Train a CRF model to segment raw text into CC lines
@@ -318,9 +331,12 @@ $ ls /tmp/css/test
 $ python -m lachesis.ml.crf dump eng /tmp/ccs/test/ /tmp/ccs/test.pickle
 $ python -m lachesis.ml.crf test eng /tmp/ccs/test.pickle /tmp/ccs/model.crfsuite
 ...
+$ # now you can build a CRFSplitter
+$ # with model_file_path="/tmp/ccs/model.crfsuite" as shown above
+
 ```
 
-TBW: explain how to use the ``model.crfsuite`` file.
+TODO: decide and document where pre-trained model files can be downloaded
 
 
 ## License
