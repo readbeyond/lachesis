@@ -289,7 +289,7 @@ def main():
 
     def check_language(obj):
         """ Check that the given string identifies a known language. """
-        language = Language.from_code(gf.to_unicode_string(obj))
+        language = Language.from_code(obj)
         if language is None:
             print(u"[ERRO] Unknown language code '%s'" % obj)
             usage(1)

@@ -24,6 +24,7 @@ TBW
 
 from __future__ import absolute_import
 from __future__ import print_function
+import os
 
 from lachesis.elements import Span
 from lachesis.elements import Token
@@ -37,6 +38,12 @@ class NLTKWrapper(BaseWrapper):
     """
 
     CODE = u"nltk"
+
+    MODEL_FILES_DIRECTORY_PATH = os.path.join(
+        os.path.expanduser("~/"),
+        "lachesis_data",
+        "nltk_data"
+    )
 
     LANGUAGE_TO_NLTK_FILE = {
         Language.CZECH: u"czech",
@@ -64,6 +71,7 @@ class NLTKWrapper(BaseWrapper):
         super(NLTKWrapper, self).__init__(language)
         self.nltk_language = self.LANGUAGE_TO_NLTK_FILE[self.language]
         import nltk
+        nltk.data.path.append(self.MODEL_FILES_DIRECTORY_PATH)
         self.tokenizer = nltk.data.load("tokenizers/punkt/%s.pickle" % self.nltk_language)
         from nltk.tokenize import sent_tokenize
         from nltk.tokenize import word_tokenize

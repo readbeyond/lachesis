@@ -39,12 +39,13 @@ class UDPipeWrapper(BaseWrapper):
 
     CODE = u"udpipe"
 
-    MODEL_FILES_DIRECTORY_PATH = os.path.expanduser("~/udpipe_data")
+    MODEL_FILES_DIRECTORY_PATH = os.path.join(
+        os.path.expanduser("~/"),
+        "lachesis_data",
+        "udpipe_data"
+    )
 
     LANGUAGE_TO_MODEL_FILE = {
-        Language.ITALIAN: u"italian-ud-1.2-160523.udpipe",
-        u"ancient-greek-proiel": u"ancient-greek-proiel-ud-1.2-160523.udpipe",
-        Language.GREEK_ANCIENT: u"ancient-greek-ud-1.2-160523.udpipe",
         Language.ARABIC: u"arabic-ud-1.2-160523.udpipe",
         Language.BASQUE: u"basque-ud-1.2-160523.udpipe",
         Language.BULGARIAN: u"bulgarian-ud-1.2-160523.udpipe",
@@ -54,20 +55,18 @@ class UDPipeWrapper(BaseWrapper):
         Language.DUTCH: u"dutch-ud-1.2-160523.udpipe",
         Language.ENGLISH: u"english-ud-1.2-160523.udpipe",
         Language.ESTONIAN: u"estonian-ud-1.2-160523.udpipe",
-        u"finnish-ftb": u"finnish-ftb-ud-1.2-160523.udpipe",
         Language.FINNISH: u"finnish-ud-1.2-160523.udpipe",
         Language.FRENCH: u"french-ud-1.2-160523.udpipe",
         Language.GERMAN: u"german-ud-1.2-160523.udpipe",
         Language.GOTHIC: u"gothic-ud-1.2-160523.udpipe",
         Language.GREEK: u"greek-ud-1.2-160523.udpipe",
+        Language.GREEK_ANCIENT: u"ancient-greek-ud-1.2-160523.udpipe",
         Language.HEBREW: u"hebrew-ud-1.2-160523.udpipe",
         Language.HINDI: u"hindi-ud-1.2-160523.udpipe",
         Language.HUNGARIAN: u"hungarian-ud-1.2-160523.udpipe",
         Language.INDONESIAN: u"indonesian-ud-1.2-160523.udpipe",
         Language.IRISH: u"irish-ud-1.2-160523.udpipe",
         Language.ITALIAN: u"italian-ud-1.2-160523.udpipe",
-        u"latin-itt": u"latin-itt-ud-1.2-160523.udpipe",
-        u"latin-proiel": u"latin-proiel-ud-1.2-160523.udpipe",
         Language.LATIN: u"latin-ud-1.2-160523.udpipe",
         Language.NORWEGIAN: u"norwegian-ud-1.2-160523.udpipe",
         Language.OLD_CHURCH_SLAVONIC: u"old-church-slavonic-ud-1.2-160523.udpipe",
@@ -79,6 +78,10 @@ class UDPipeWrapper(BaseWrapper):
         Language.SPANISH: u"spanish-ud-1.2-160523.udpipe",
         Language.SWEDISH: u"swedish-ud-1.2-160523.udpipe",
         Language.TAMIL: u"tamil-ud-1.2-160523.udpipe",
+        u"ancient-greek-proiel": u"ancient-greek-proiel-ud-1.2-160523.udpipe",
+        u"finnish-ftb": u"finnish-ftb-ud-1.2-160523.udpipe",
+        u"latin-itt": u"latin-itt-ud-1.2-160523.udpipe",
+        u"latin-proiel": u"latin-proiel-ud-1.2-160523.udpipe",
     }
 
     LANGUAGES = LANGUAGE_TO_MODEL_FILE.keys()

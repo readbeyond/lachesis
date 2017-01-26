@@ -42,12 +42,12 @@ pip install lachesis
 You might need additional packages,
 depending on how you plan to use ``lachesis``:
 
-* ``lxml >= 3.6.0`` (reading or downloading TTML files)
-* ``youtube-dl >= 2017.1.16`` (downloading TTML files)
-* ``python-crfsuite >= 0.9.1`` (training/applying ML-based splitters)
+* ``lxml >= 3.6.0`` for reading or downloading TTML files;
+* ``youtube-dl >= 2017.1.16`` for downloading TTML files;
+* ``python-crfsuite >= 0.9.1`` for training and using CRF-based splitters.
 
-By design choice,
-none of the above dependencies is installed by ``pip``.
+By design choice, none of the above dependencies
+is installed by ``pip install lachesis``.
 If you want to install them all, you can use:
 
 ```bash
@@ -67,10 +67,10 @@ In addition to the dependencies listed above,
 to perform POS tagging and sentence segmentation
 ``lachesis`` can use one or more of the following libraries:
 
-* ``pattern`` (install with ``pip install pattern``)
-* ``NLTK`` (install with ``pip install nltk``)
-* ``spaCy`` (install with ``pip install spacy``)
-* ``UDPipe`` (install with ``pip install ufal.udpipe``)
+* ``Pattern`` (install with ``pip install pattern``, [Web page](http://www.clips.ua.ac.be/pattern))
+* ``NLTK`` (install with ``pip install nltk``, [Web page](http://www.nltk.org/))
+* ``spaCy`` (install with ``pip install spacy``, [Web page](https://spacy.io/))
+* ``UDPipe`` (install with ``pip install ufal.udpipe``, [Web page](https://ufal.mff.cuni.cz/))
 
 If you want to install them all, you can use:
 
@@ -80,18 +80,61 @@ pip install lachesis[fullnlp]
 
 TBW: option ``[fullnlp]`` not implemented yet.
 
-Except for ``pattern``, each NLP library also needs
-language models, that you need to download/install separately.
+Each NLP library also needs language models
+which you need to download/install separately.
 Consult the documentation of your NLP library for details.
 
 ``lachesis`` expects the following directories in your home directory
-(you can symlink them, if you installed each NLP in a different place):
+(you can symlink them, if you installed each NLP library in a different place):
 
-* ``~/nltk_data`` for ``NLTK`` (that is the default place for NLTK);
-* ``~/spacy_data`` for ``spaCy``;
-* ``~/udpipe_data`` for ``UDPipe``.
+* ``~/lachesis_data/nltk_data`` for ``NLTK`` (see [docs](http://www.nltk.org/data.html));
+* ``~/lachesis_data/spacy_data`` for ``spaCy`` (see [docs](https://spacy.io/docs/usage/));
+* ``~/lachesis_data/udpipe_data`` for ``UDPipe`` (see [docs](https://ufal.mff.cuni.cz/udpipe)).
 
-TBW: add more details and links to each NLP lib docs.
+The NLP library ``Pattern`` does not need a separate download
+of its language models, as they are bundled in the file
+you download when installing through ``pip install pattern``.
+
+The following table summarizes the languages supported by each library
+in their standard language models pack.
+(Additional languages might be supported by third party projects/downloads
+or added over time.)
+
+| Language / Library    | Pattern   | NLTK  | spaCy | UDPipe    |
+|-----------------------|-----------|-------|-------|-----------|
+| Arabic                |           |       |       | ✓         |
+| Basque                |           |       |       | ✓         |
+| Bulgarian             |           |       |       | ✓         |
+| Croatian              |           |       |       | ✓         |
+| Czech                 |           | ✓     |       | ✓         |
+| Danish                |           | ✓     |       | ✓         |
+| Dutch                 | ✓         | ✓     |       | ✓         |
+| English               | ✓         | ✓     | ✓     | ✓         |
+| Estonian              |           | ✓     |       | ✓         |
+| Finnish               |           | ✓     |       | ✓         |
+| French                | ✓         | ✓     |       | ✓         |
+| German                | ✓         | ✓     | ✓     | ✓         |
+| Gothic                |           |       |       | ✓         |
+| Greek                 |           | ✓     |       | ✓         |
+| Greek (ancient)       |           |       |       | ✓         |
+| Hebrew                |           |       |       | ✓         |
+| Hindi                 |           |       |       | ✓         |
+| Hungarian             |           |       |       | ✓         |
+| Indonesian            |           |       |       | ✓         |
+| Irish                 |           |       |       | ✓         |
+| Italian               | ✓         | ✓     |       | ✓         |
+| Latin                 |           |       |       | ✓         |
+| Norwegian             |           | ✓     |       | ✓         |
+| Old Church Slavonic   |           |       |       | ✓         |
+| Persian               |           |       |       | ✓         |
+| Polish                |           | ✓     |       | ✓         |
+| Portuguese            |           | ✓     |       | ✓         |
+| Romanian              |           |       |       | ✓         |
+| Slovenian             |           | ✓     |       | ✓         |
+| Spanish               | ✓         | ✓     |       | ✓         |
+| Swedish               |           | ✓     |       | ✓         |
+| Tamil                 |           |       |       | ✓         |
+| Turkish               |           | ✓     |       |           |
 
 
 ## Usage
@@ -171,10 +214,10 @@ nlp2.analyze(doc, wrapper=u"nltk")
 # you can preload (and keep cached) an NLP library,
 # even different ones for different languages
 nlp3 = NLPEngine(preload=[
-    (u"eng", u"spacy"),
-    (u"deu", u"nltk"),
-    (u"ita", u"pattern"),
-    (u"fra", u"udpipe")
+    (u"en", u"spacy"),
+    (u"de", u"nltk"),
+    (u"it", u"pattern"),
+    (u"fr", u"udpipe")
 ])
 nlp3.analyze(doc)
 ...
