@@ -16,20 +16,51 @@ Goal
 ----
 
 **lachesis** automates the segmentation of a transcript into closed
-captions (CC), by using machine learning techniques and POS
-tagging/sentence segmentation/syntax parsing provided by one of the base
-NLP libraries below.
+captions (CCs).
 
-It contains the following major functions:
+The general idea is that writing a transcription (raw text) is easier
+and faster than writing CCs, especially if you need to respect
+constraints like a certain minimum/maximum number of characters per
+line, a maximum number of lines per CC, etc.
 
--  download closed captions from YouTube
--  parse closed caption TTML files
--  POS tag a given text or closed caption file
--  segment a given text into sentences
+You can transcribe your video into raw text and ``lachesis`` will take
+on the job of segmenting the text into CCs for you. Once you have the
+CCs, you can use a `forced
+aligner <https://github.com/pettarin/forced-alignment-tools/>`__ like
+`aeneas <https://github.com/readbeyond/aeneas/>`__ to align them with
+the audio of your video, obtaining a subtitle file (SRT, TTML, VTT,
+etc.).
+
+With ``lachesis`` and a forced aligner, the manual labor for producing
+CCs for a video is reduced to a. transcribing the video in raw text
+form, and b. checking the final CCs and audio alignment. Instead of
+transcribing from scratch, you can even start by checking/editing a
+rough transcription made by an automated speech recognition engine, like
+the "automatic CCs" from YouTube, speeding the process up further.
+
+The "magic" behind ``lachesis`` consists in combining machine learning
+techniques like `conditional random
+fields <https://en.wikipedia.org/wiki/Conditional_random_field>`__ (CRF)
+and classical NLP tools like `POS
+tagging <https://en.wikipedia.org/wiki/Part-of-speech_tagging>`__ and
+`sentence
+segmentation <https://en.wikipedia.org/wiki/Text_segmentation>`__ to
+split the text into CC lines. The machine learning models are learned
+from existing, manually-edited, high-quality CCs, like those of
+`TED <https://www.youtube.com/user/TEDtalksDirector>`__/`TEDx <https://www.youtube.com/user/TEDxTalks>`__
+talks on YouTube. The NLP tools come from the well-established, free NLP
+libraries for Python listed below.
+
+In summary, ``lachesis`` contains the following major functions:
+
+-  download closed captions from YouTube;
+-  parse closed caption TTML files (downloaded from YouTube);
+-  add POS tags to a given text or closed caption file;
+-  segment a given text into sentences;
 -  segment a given text into closed captions (several algorithms are
-   available)
+   available);
 -  train and use machine learning models to segment raw text into CC
-   lines
+   lines.
 
 Installation
 ------------
@@ -184,44 +215,47 @@ supported by third party projects/downloads or added over time.)
 Usage
 -----
 
-Download closed captions from YouTube or parse an existing TTML file:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Download closed captions from YouTube
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     from lachesis.downloaders import Downloader
     from lachesis.language import Language
 
-    # URL of the video
+    # set URL of the video and language of the CCs
     url = u"http://www.youtube.com/watch?v=NSL_xx2Qnyc"
-
-    # language
     language = Language.ENGLISH
 
-    # download English automatic CC, storing the raw TTML file in /tmp/
-    options = { "auto": True, "output_file_path": "/tmp/auto.ttml" }
+    # download automatic CC, do not save to file
+    options = { "auto": True }
     doc = Downloader.download_closed_captions(url, language, options)
     print(doc)
 
-    # download English manual CC
-    options = { "auto": False }
+    # download manually-edited CC, saving the raw TTML file to disk
+    options = { "auto": False, "output_file_path": "/tmp/ccs.ttml" }
     doc = Downloader.download_closed_captions(url, language, options)
     print(doc)
 
-    # parse a given TTML file (downloaded from YouTube)
-    ifp = "/tmp/auto.ttml"
+Parse an existing TTML file downloaded from YouTube
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    from lachesis.downloaders import Downloader
+
+    # parse a given TTML file downloaded from YouTube
+    ifp = "/tmp/ccs.ttml"
     doc = Downloader.read_closed_captions(ifp, options={u"downloader": u"youtube"})
-
-    # retrieve document language
     print(doc.language)
 
-    # get several representations of the CCs
-    doc.raw_string                          # as a multi line string, similar to SRT but w/o ids or times
-    doc.raw_flat_clean_string               # as a single line string, w/o CC line marks
-    doc.raw.string(flat=True, eol=u"|")     # as a single line string, CC lines separated by '|' characters
+    # print several representations of the CCs
+    print(doc.raw_string)                       # multi line string, similar to SRT but w/o ids or times
+    print(doc.raw_flat_clean_string)            # single line string, w/o CC line marks
+    print(doc.raw.string(flat=True, eol=u"|"))  # single line string, CC lines separated by '|' characters
 
-Tokenize, split sentences, and POS tagging:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tokenize, split sentences, and POS tagging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -330,7 +364,6 @@ Train a CRF model to segment raw text into CC lines
     1001.ttml
     1002.ttml
     ...
-
     $ python -m lachesis.ml.crf dump eng /tmp/ccs/test/ /tmp/ccs/test.pickle
     $ python -m lachesis.ml.crf test eng /tmp/ccs/test.pickle /tmp/ccs/model.crfsuite
     ...
